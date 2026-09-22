@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Header } from './components/Header';
 import { HeroFeatured } from './components/HeroFeatured';
-import { PopularTags } from './components/PopularTags';
 import { CategoriesFilter } from './components/CategoriesFilter';
 import { VideoGrid } from './components/VideoGrid';
 import { NotificationsModal } from './components/NotificationsModal';
 import { ChannelBanner } from './components/ChannelBanner';
-import { INITIAL_VIDEOS, POPULAR_KEYWORDS } from './data/videos';
+import { INITIAL_VIDEOS } from './data/videos';
 import { VideoStory, StoryCategory, AppNotification } from './types';
 import { playCutePop, playSparkleChime } from './utils/audio';
 
@@ -85,7 +84,6 @@ export default function App() {
   // 5. Filtering State
   const [selectedCategory, setSelectedCategory] = useState<StoryCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTag, setActiveTag] = useState('');
 
   // 6. Notifications State
   const [notifications, setNotifications] = useState<AppNotification[]>(() => {
@@ -150,7 +148,7 @@ export default function App() {
     });
   };
 
-  // Filtered videos based on category, tag, and search
+  // Filtered videos based on category and search
   const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
       // 1. Favorites Category Filter
@@ -160,17 +158,7 @@ export default function App() {
         if (video.category !== selectedCategory) return false;
       }
 
-      // 2. Active Keyword Tag Filter
-      if (activeTag) {
-        const tagItem = POPULAR_KEYWORDS.find((k) => k.tag === activeTag);
-        const tagLower = activeTag.toLowerCase();
-        const matchesTitle = video.cleanTitle.toLowerCase().includes(tagLower) || video.title.toLowerCase().includes(tagLower);
-        const matchesDesc = video.description.toLowerCase().includes(tagLower);
-        const matchesCategory = tagItem?.category && video.category === tagItem.category;
-        if (!matchesTitle && !matchesDesc && !matchesCategory) return false;
-      }
-
-      // 3. Search Query Filter
+      // 2. Search Query Filter
       if (searchQuery.trim()) {
         const query = searchQuery.trim().toLowerCase();
         const matchesTitle = video.cleanTitle.toLowerCase().includes(query) || video.title.toLowerCase().includes(query);
@@ -181,7 +169,7 @@ export default function App() {
 
       return true;
     });
-  }, [videos, selectedCategory, activeTag, searchQuery, favorites]);
+  }, [videos, selectedCategory, searchQuery, favorites]);
 
   // Category counts
   const categoryCounts = useMemo(() => {
@@ -241,7 +229,6 @@ export default function App() {
         favoritesCount={favorites.length}
         onOpenFavorites={() => {
           setSelectedCategory('favorites');
-          setActiveTag('');
           setSearchQuery('');
           window.scrollTo({ top: 400, behavior: 'smooth' });
         }}
@@ -255,7 +242,6 @@ export default function App() {
         searchQuery={searchQuery}
         onSearchChange={(q) => {
           setSearchQuery(q);
-          if (q) setActiveTag('');
         }}
         onSoundTrigger={triggerCutePop}
       />
@@ -272,31 +258,17 @@ export default function App() {
           isLatestUpload={currentVideo.id === INITIAL_VIDEOS[0].id}
         />
 
-        {/* 3. Popular Keywords & Magic Tags Cloud for instant exploration */}
-        <PopularTags
-          activeTag={activeTag}
-          onSelectTag={(tag) => {
-            setActiveTag(tag);
-            if (tag) {
-              setSelectedCategory('all');
-              setSearchQuery('');
-            }
-          }}
-          onSoundTrigger={triggerCutePop}
-        />
-
-        {/* 4. Kid-Friendly Colorful Categories Pill Selector */}
+        {/* 3. Kid-Friendly Colorful Categories Pill Selector */}
         <CategoriesFilter
           selectedCategory={selectedCategory}
           onSelectCategory={(cat) => {
             setSelectedCategory(cat);
-            setActiveTag('');
           }}
           categoryCounts={categoryCounts}
           onSoundTrigger={triggerCutePop}
         />
 
-        {/* 5. Stories Grid & Dedicated Featured Episodes Section */}
+        {/* 4. Stories Grid & Dedicated Featured Episodes Section */}
         <VideoGrid
           videos={filteredVideos}
           featuredVideos={featuredVideos}
@@ -304,7 +276,6 @@ export default function App() {
           favorites={favorites}
           selectedCategory={selectedCategory}
           searchQuery={searchQuery}
-          activeTag={activeTag}
           onSelectVideo={(video) => {
             setCurrentVideo(video);
             window.scrollTo({ top: 60, behavior: 'smooth' });
@@ -313,25 +284,18 @@ export default function App() {
           onSoundTrigger={triggerCutePop}
           onResetCategory={() => {
             setSelectedCategory('all');
-            setActiveTag('');
             setSearchQuery('');
           }}
         />
 
       </main>
 
-      {/* 6. Channel Highlight Card, Keywords Cloud & Safe Guarantee Footer */}
+      {/* 5. Channel Highlight Card & Safe Guarantee Footer (No visual keywords cloud) */}
       <ChannelBanner
         onSoundTrigger={triggerCutePop}
-        onSelectKeyword={(tag) => {
-          setActiveTag(tag);
-          setSelectedCategory('all');
-          setSearchQuery('');
-          window.scrollTo({ top: 450, behavior: 'smooth' });
-        }}
       />
 
-      {/* 7. Notifications & Alerts Modal */}
+      {/* 6. Notifications & Alerts Modal */}
       <NotificationsModal
         isOpen={isNotificationsModalOpen}
         onClose={() => setIsNotificationsModalOpen(false)}

@@ -1,13 +1,12 @@
 import React from 'react';
 import { Youtube, ShieldCheck, Heart, Sparkles, Star, ExternalLink } from 'lucide-react';
-import { OFFICIAL_CHANNEL_URL, CHANNEL_HANDLE, CHANNEL_NAME, POPULAR_KEYWORDS } from '../data/videos';
+import { OFFICIAL_CHANNEL_URL, CHANNEL_HANDLE, CHANNEL_NAME } from '../data/videos';
 
 interface ChannelBannerProps {
   onSoundTrigger: () => void;
-  onSelectKeyword?: (keyword: string) => void;
 }
 
-export const ChannelBanner: React.FC<ChannelBannerProps> = ({ onSoundTrigger, onSelectKeyword }) => {
+export const ChannelBanner: React.FC<ChannelBannerProps> = ({ onSoundTrigger }) => {
   return (
     <footer className="mt-12 sm:mt-16 pt-8 pb-12 border-t-2 border-amber-200/60 dark:border-indigo-950/80 bg-gradient-to-b from-transparent via-amber-50/40 to-amber-100/30 dark:via-slate-900/40 dark:to-slate-950 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
@@ -68,43 +67,6 @@ export const ChannelBanner: React.FC<ChannelBannerProps> = ({ onSoundTrigger, on
               </a>
             </div>
 
-          </div>
-        </div>
-
-        {/* Strong Keywords Cloud for SEO and Search Ranking */}
-        <div className="p-5 sm:p-6 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-amber-200/80 dark:border-indigo-950/80 shadow-md space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
-              <h4 className="text-sm sm:text-base font-black text-slate-800 dark:text-amber-100">
-                دليل الكلمات المفتاحية الأكثر بحثاً (SEO Keywords):
-              </h4>
-            </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              اضغط على أي كلمة لعرض الحكايات المرتبطة بها
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {POPULAR_KEYWORDS.map((k) => (
-              <button
-                key={k.tag}
-                onClick={() => {
-                  onSoundTrigger();
-                  if (onSelectKeyword) onSelectKeyword(k.tag);
-                }}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border border-amber-200/60 dark:border-slate-700 hover:bg-amber-400 hover:text-slate-950 dark:hover:bg-amber-400 dark:hover:text-slate-950 transition active:scale-95"
-              >
-                {k.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Additional SEO text for search engine indexation */}
-          <div className="pt-2 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
-            <p>
-              <strong>كلمات بحث شائعة:</strong> حواديت قبل النوم • قصص أطفال مكتوبة ومصورة • كرتون أطفال بالعربي بدون إعلانات • رسوم متحركة باللغة العربية الفصحى • قصص الأميرات (سندريلا، رابونزل، سنو وايت، فاسيليسا) • حكايات الحيوانات الهادفة • كرتون الكلب بولت • مغامرات السندباد البحري • قناة قصة العائلة (@Qessa-family) على يوتيوب • كرتون هادف للأطفال لغرس الأخلاق الحميدة.
-            </p>
           </div>
         </div>
 

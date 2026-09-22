@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Heart, Search, Film, ArrowUpDown, Star } from 'lucide-react';
+import { Heart, Search, Film, ArrowUpDown, Star } from 'lucide-react';
 import { VideoStory, StoryCategory } from '../types';
 import { VideoCard } from './VideoCard';
 
@@ -10,7 +10,6 @@ interface VideoGridProps {
   favorites: string[];
   selectedCategory: StoryCategory;
   searchQuery: string;
-  activeTag: string;
   onSelectVideo: (video: VideoStory) => void;
   onToggleFavorite: (id: string) => void;
   onSoundTrigger: () => void;
@@ -24,7 +23,6 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
   favorites,
   selectedCategory,
   searchQuery,
-  activeTag,
   onSelectVideo,
   onToggleFavorite,
   onSoundTrigger,
@@ -43,8 +41,8 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
   return (
     <div className="space-y-8 sm:space-y-12">
       
-      {/* 1. قسم الحلقات المميزة (Shown when on 'all' without search/tags) */}
-      {selectedCategory === 'all' && !searchQuery && !activeTag && featuredVideos.length > 0 && (
+      {/* 1. قسم الحلقات المميزة (Shown when on 'all' without search) */}
+      {selectedCategory === 'all' && !searchQuery && featuredVideos.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -91,8 +89,6 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                 <span>
                   {selectedCategory === 'favorites'
                     ? 'قائمتي المفضلة ❤️'
-                    : activeTag
-                    ? `الحكايات المتعلقة بـ #${activeTag}`
                     : searchQuery
                     ? `نتائج البحث عن: "${searchQuery}"`
                     : 'مكتبة الحكايات والكرتون'}

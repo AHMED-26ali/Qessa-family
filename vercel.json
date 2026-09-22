@@ -3,6 +3,9 @@
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "dist",
   "framework": "vite",
+  "env": {
+    "VITE_CONFIG_NATIVE_IGNORE_WARNING": "true"
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
