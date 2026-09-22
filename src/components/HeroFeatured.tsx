@@ -104,10 +104,13 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
               href={OFFICIAL_CHANNEL_URL}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="قناة قصة العائلة الرسمية على يوتيوب @Qessa-family"
+              title="زيارة قناة قصة العائلة على يوتيوب"
               className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-red-600 dark:text-red-400 hover:underline px-1.5 sm:px-2 py-1 min-h-[32px]"
             >
-              <Youtube className="w-3.5 h-3.5 fill-red-600 shrink-0" />
-              <span className="hidden xs:inline">@Qessa-family</span>
+              <Youtube className="w-3.5 h-3.5 fill-red-600 shrink-0" aria-hidden="true" />
+              <span className="sr-only">قناة قصة العائلة الرسمية على يوتيوب</span>
+              <span>@Qessa-family</span>
             </a>
           </div>
         </div>

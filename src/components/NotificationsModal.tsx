@@ -135,6 +135,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             onClick={onSoundTrigger}
+            aria-label="زيارة قناة قصة العائلة على يوتيوب"
             className="flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:underline min-h-[40px]"
           >
             <Youtube className="w-4 h-4 fill-red-600" />

@@ -119,10 +119,12 @@ export const Header: React.FC<HeaderProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={onSoundTrigger}
+              aria-label="زيارة قناة قصة العائلة على يوتيوب والاشتراك"
               className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl text-xs font-black text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 active:scale-95 shadow-md hover:shadow-lg transition-all min-h-[40px]"
               title="زيارة قناة قصة العائلة على يوتيوب والاشتراك"
             >
-              <Youtube className="w-4 h-4 fill-white shrink-0" />
+              <Youtube className="w-4 h-4 fill-white shrink-0" aria-hidden="true" />
+              <span className="sr-only">اشتراك في قناة قصة العائلة على يوتيوب</span>
               <span className="hidden sm:inline">اشترك بالقناة</span>
               <span className="sm:hidden text-[11px]">يوتيوب</span>
             </a>

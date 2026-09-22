@@ -59,6 +59,7 @@ export const ChannelBanner: React.FC<ChannelBannerProps> = ({ onSoundTrigger }) 
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={onSoundTrigger}
+                aria-label="اشترك في قناة قصة العائلة على يوتيوب"
                 className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 active:scale-95 font-black text-xs sm:text-base shadow-lg flex items-center justify-center gap-2 transition min-h-[44px]"
               >
                 <Youtube className="w-4 h-4 sm:w-5 sm:h-5 fill-rose-600 shrink-0" />

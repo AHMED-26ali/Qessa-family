@@ -1,0 +1,71 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "قصة العائلة | Qessa Family",
+    "domain": "qessa-family.vercel.app"
+  },
+  "entries": [
+    {
+      "identifier": "urn:ai:qessa-family:web-app",
+      "displayName": "قصة العائلة - حكايات ورسوم متحركة للأطفال",
+      "description": "منصة رقمية تفاعلية تقدم أروع حكايات وقصص الأطفال ورسوم متحركة كرتونية باللغة العربية، وحواديت قبل النوم الآمنة والهادفة.",
+      "type": "text/html",
+      "url": "https://qessa-family.vercel.app/",
+      "representativeQueries": [
+        "حواديت قبل النوم للأطفال",
+        "كرتون أطفال ورسوم متحركة بالعربي",
+        "قصص أطفال هادفة",
+        "قصص الأميرات كرتون",
+        "حكايات قصة العائلة"
+      ]
+    },
+    {
+      "identifier": "urn:ai:qessa-family:catalog:bedtime",
+      "displayName": "حواديت قبل النوم",
+      "description": "مجموعة قصص مهدئة ومسلية مخصصة لوقت النوم للأطفال لغرس القيم والتربية السليمة.",
+      "type": "text/html",
+      "url": "https://qessa-family.vercel.app/?category=bedtime",
+      "representativeQueries": [
+        "حدوتة قبل النوم للاطفال",
+        "قصص قبل النوم مهدئة",
+        "حواديت اطفال bedtime stories"
+      ]
+    },
+    {
+      "identifier": "urn:ai:qessa-family:catalog:princesses",
+      "displayName": "قصص الأميرات",
+      "description": "حكايات الأميرات الكرتونية الشهيرة برؤية عربية آمنة مثل سندريلا ورابونزل وسنو وايت.",
+      "type": "text/html",
+      "url": "https://qessa-family.vercel.app/?category=princesses",
+      "representativeQueries": [
+        "كرتون سندريلا بالعربي",
+        "قصة الاميرة رابونزل",
+        "قصص الاميرات للأطفال"
+      ]
+    },
+    {
+      "identifier": "urn:ai:qessa-family:catalog:animals",
+      "displayName": "حيوانات الغابة",
+      "description": "قصص تربوية ومسلية عن الحيوانات والوفاء والحكمة مثل الأرنب والسلحفاة وفأر المدينة.",
+      "type": "text/html",
+      "url": "https://qessa-family.vercel.app/?category=animals",
+      "representativeQueries": [
+        "قصص حيوانات للاطفال",
+        "قصة الارنب والسلحفاة كرتون",
+        "حكايات الغابة"
+      ]
+    },
+    {
+      "identifier": "urn:ai:qessa-family:catalog:adventure",
+      "displayName": "مغامرات وأساطير",
+      "description": "رحلات شيقة ومغامرات بطولية للأطفال مثل السندباد البحري ورايا والتنين.",
+      "type": "text/html",
+      "url": "https://qessa-family.vercel.app/?category=adventure",
+      "representativeQueries": [
+        "مغامرات كرتون للاطفال",
+        "قصة السندباد البحري كرتون",
+        "حكايات المغامرات والاساطير"
+      ]
+    }
+  ]
+}
