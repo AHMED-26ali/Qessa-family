@@ -2,70 +2,95 @@
   "specVersion": "1.0",
   "host": {
     "displayName": "قصة العائلة | Qessa Family",
-    "identifier": "https://qessa-family.vercel.app",
+    "identifier": "urn:air:qessa-family:host:platform",
     "documentationUrl": "https://qessa-family.vercel.app"
   },
   "entries": [
     {
-      "identifier": "urn:ai:qessa-family:web-app",
-      "displayName": "قصة العائلة - حكايات ورسوم متحركة للأطفال",
-      "description": "منصة رقمية تفاعلية تقدم أروع حكايات وقصص الأطفال ورسوم متحركة كرتونية باللغة العربية، وحواديت قبل النوم الآمنة والهادفة.",
-      "type": "text/html",
-      "url": "https://qessa-family.vercel.app/",
+      "identifier": "urn:air:qessa-family:agent:story-assistant",
+      "displayName": "قصة العائلة - مساعد ومستكشف حكايات الأطفال",
+      "description": "وكيل ذكي متكامل لاكتشاف وسرد حكايات وقصص الأطفال ورسوم متحركة كرتونية باللغة العربية، وحواديت قبل النوم الآمنة والهادفة.",
+      "type": "application/agent-card+json",
+      "url": "https://qessa-family.vercel.app/.well-known/agent-card.json",
       "tags": [
         "حواديت قبل النوم للأطفال",
         "كرتون أطفال ورسوم متحركة بالعربي",
         "قصص أطفال هادفة",
         "قصص الأميرات كرتون",
         "حكايات قصة العائلة"
+      ],
+      "representativeQueries": [
+        "حواديت وقصص أطفال كرتون بالعربي",
+        "قصة العائلة رسوم متحركة وحكايات هادفة",
+        "حكايات أطفال تعليمية ومسلية قبل النوم"
       ]
     },
     {
-      "identifier": "urn:ai:qessa-family:catalog:bedtime",
+      "identifier": "urn:air:qessa-family:skills:bedtime-stories",
       "displayName": "حواديت قبل النوم",
-      "description": "مجموعة قصص مهدئة ومسلية مخصصة لوقت النوم للأطفال لغرس القيم والتربية السليمة.",
-      "type": "text/html",
-      "url": "https://qessa-family.vercel.app/?category=bedtime",
+      "description": "دليل ومهارة سرد حواديت قبل النوم المهدئة للأطفال لغرس القيم والتربية السليمة والاسترخاء.",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://qessa-family.vercel.app/llms.txt",
       "tags": [
         "حدوتة قبل النوم للاطفال",
         "قصص قبل النوم مهدئة",
         "حواديت اطفال bedtime stories"
+      ],
+      "representativeQueries": [
+        "حدوتة قبل النوم للاطفال مكتوبة ومسموعة",
+        "قصص قبل النوم مهدئة ومسلية للاطفال",
+        "حكايات نوم مفيدة للصغار بالعربي"
       ]
     },
     {
-      "identifier": "urn:ai:qessa-family:catalog:princesses",
+      "identifier": "urn:air:qessa-family:skills:princess-stories",
       "displayName": "قصص الأميرات",
-      "description": "حكايات الأميرات الكرتونية الشهيرة برؤية عربية آمنة مثل سندريلا ورابونزل وسنو وايت.",
-      "type": "text/html",
-      "url": "https://qessa-family.vercel.app/?category=princesses",
+      "description": "مهارة وسرد حكايات الأميرات الكرتونية الشهيرة برؤية تربوية عربية آمنة مثل سندريلا ورابونزل وسنو وايت.",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://qessa-family.vercel.app/llms.txt",
       "tags": [
         "كرتون سندريلا بالعربي",
         "قصة الاميرة رابونزل",
         "قصص الاميرات للأطفال"
+      ],
+      "representativeQueries": [
+        "كرتون وقصص الاميرات بالعربي",
+        "قصة سندريلا ورابونزل للاطفال",
+        "حكايات الاميرات كرتون مدبلج"
       ]
     },
     {
-      "identifier": "urn:ai:qessa-family:catalog:animals",
+      "identifier": "urn:air:qessa-family:skills:animal-stories",
       "displayName": "حيوانات الغابة",
-      "description": "قصص تربوية ومسلية عن الحيوانات والوفاء والحكمة مثل الأرنب والسلحفاة وفأر المدينة.",
-      "type": "text/html",
-      "url": "https://qessa-family.vercel.app/?category=animals",
+      "description": "مهارة سرد قصص وحكايات تربوية ومسلية عن الحيوانات والوفاء والحكمة مثل الأرنب والسلحفاة وفأر المدينة.",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://qessa-family.vercel.app/llms.txt",
       "tags": [
         "قصص حيوانات للاطفال",
         "قصة الارنب والسلحفاة كرتون",
         "حكايات الغابة"
+      ],
+      "representativeQueries": [
+        "قصص حيوانات للاطفال بالعربي هادفة",
+        "قصة الارنب والسلحفاة كرتون هادف",
+        "حكايات حيوانات الغابة مصورة للاطفال"
       ]
     },
     {
-      "identifier": "urn:ai:qessa-family:catalog:adventure",
+      "identifier": "urn:air:qessa-family:skills:adventure-stories",
       "displayName": "مغامرات وأساطير",
-      "description": "رحلات شيقة ومغامرات بطولية للأطفال مثل السندباد البحري ورايا والتنين.",
-      "type": "text/html",
-      "url": "https://qessa-family.vercel.app/?category=adventure",
+      "description": "رحلات شيقة ومغامرات كرتونية بطولية للأطفال مثل السندباد البحري ورايا والتنين تغرس الشجاعة والمثابرة.",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://qessa-family.vercel.app/llms.txt",
       "tags": [
         "مغامرات كرتون للاطفال",
         "قصة السندباد البحري كرتون",
         "حكايات المغامرات والاساطير"
+      ],
+      "representativeQueries": [
+        "مغامرات كرتون للاطفال بالعربي",
+        "قصة السندباد البحري كرتون مشوق",
+        "حكايات المغامرات والاساطير للاطفال"
       ]
     }
   ]

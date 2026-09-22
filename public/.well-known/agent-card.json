@@ -1,0 +1,37 @@
+{
+  "name": "Qessa Family Stories Agent",
+  "displayName": "قصة العائلة - مساعد الحكايات والكرتون",
+  "description": "وكيل ذكي لاستكشاف وسرد حكايات الأطفال والرسوم المتحركة باللغة العربية وغرس القيم التربوية.",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "Qessa Family",
+    "url": "https://qessa-family.vercel.app"
+  },
+  "url": "https://qessa-family.vercel.app",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "skills": [
+    {
+      "id": "bedtime-stories",
+      "name": "حواديت قبل النوم",
+      "description": "سرد واقتراح قصص هادئة ومريحة للأطفال قبل النوم"
+    },
+    {
+      "id": "princess-stories",
+      "name": "قصص الأميرات",
+      "description": "حكايات الأميرات الكرتونية الآمنة"
+    },
+    {
+      "id": "animal-stories",
+      "name": "حيوانات الغابة",
+      "description": "قصص حيوانات الغابة التربوية والتعليمية"
+    },
+    {
+      "id": "adventure-stories",
+      "name": "مغامرات وأساطير",
+      "description": "مغامرات شيقة تغرس الشجاعة وحب الاستكشاف"
+    }
+  ]
+}
