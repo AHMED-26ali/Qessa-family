@@ -2,7 +2,8 @@
   "specVersion": "1.0",
   "host": {
     "displayName": "قصة العائلة | Qessa Family",
-    "domain": "qessa-family.vercel.app"
+    "identifier": "https://qessa-family.vercel.app",
+    "documentationUrl": "https://qessa-family.vercel.app"
   },
   "entries": [
     {
@@ -11,7 +12,7 @@
       "description": "منصة رقمية تفاعلية تقدم أروع حكايات وقصص الأطفال ورسوم متحركة كرتونية باللغة العربية، وحواديت قبل النوم الآمنة والهادفة.",
       "type": "text/html",
       "url": "https://qessa-family.vercel.app/",
-      "representativeQueries": [
+      "tags": [
         "حواديت قبل النوم للأطفال",
         "كرتون أطفال ورسوم متحركة بالعربي",
         "قصص أطفال هادفة",
@@ -25,7 +26,7 @@
       "description": "مجموعة قصص مهدئة ومسلية مخصصة لوقت النوم للأطفال لغرس القيم والتربية السليمة.",
       "type": "text/html",
       "url": "https://qessa-family.vercel.app/?category=bedtime",
-      "representativeQueries": [
+      "tags": [
         "حدوتة قبل النوم للاطفال",
         "قصص قبل النوم مهدئة",
         "حواديت اطفال bedtime stories"
@@ -37,7 +38,7 @@
       "description": "حكايات الأميرات الكرتونية الشهيرة برؤية عربية آمنة مثل سندريلا ورابونزل وسنو وايت.",
       "type": "text/html",
       "url": "https://qessa-family.vercel.app/?category=princesses",
-      "representativeQueries": [
+      "tags": [
         "كرتون سندريلا بالعربي",
         "قصة الاميرة رابونزل",
         "قصص الاميرات للأطفال"
@@ -49,7 +50,7 @@
       "description": "قصص تربوية ومسلية عن الحيوانات والوفاء والحكمة مثل الأرنب والسلحفاة وفأر المدينة.",
       "type": "text/html",
       "url": "https://qessa-family.vercel.app/?category=animals",
-      "representativeQueries": [
+      "tags": [
         "قصص حيوانات للاطفال",
         "قصة الارنب والسلحفاة كرتون",
         "حكايات الغابة"
@@ -61,7 +62,7 @@
       "description": "رحلات شيقة ومغامرات بطولية للأطفال مثل السندباد البحري ورايا والتنين.",
       "type": "text/html",
       "url": "https://qessa-family.vercel.app/?category=adventure",
-      "representativeQueries": [
+      "tags": [
         "مغامرات كرتون للاطفال",
         "قصة السندباد البحري كرتون",
         "حكايات المغامرات والاساطير"
