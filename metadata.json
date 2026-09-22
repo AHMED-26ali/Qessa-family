@@ -1,0 +1,6 @@
+{
+  "name": "قصة العائلة - حكايات ورسوم متحركة للأطفال",
+  "description": "الموقع الرسمي لقناة قصة العائلة (@Qessa-family): أروع حكايات وقصص أطفال ورسوم متحركة بالعربي، حواديت قبل النوم وقصص الأميرات ومغامرات شيقة ومحتوى آمن 100% للأطفال.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

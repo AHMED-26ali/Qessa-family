@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.youtube.com/@Qessa-family
+
+# Sitemap
+Sitemap: /sitemap.xml
