@@ -25,8 +25,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+      <div className="w-full max-w-md rounded-t-3xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] pb-safe sm:pb-0">
         
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-r from-amber-500 to-rose-500 text-white">
@@ -40,8 +40,9 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/20 transition"
+            className="w-10 h-10 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-90"
             aria-label="إغلاق"
           >
             <X className="w-5 h-5" />
@@ -49,86 +50,103 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         </div>
 
         {/* Toggle Notification Permission */}
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/60 flex items-center justify-between gap-3">
+        <div className="p-3.5 sm:p-4 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/60 flex items-center justify-between gap-3">
           <div className="space-y-0.5">
             <h4 className="text-xs sm:text-sm font-black text-amber-900 dark:text-amber-200">
               إشعارات الحلقات الفورية
             </h4>
             <p className="text-[11px] text-amber-700 dark:text-amber-400">
               {notificationsEnabled
-                ? 'التنبيهات مفعلة، سنرسل لك إشعاراً فور صدور حكاية جديدة!'
-                : 'فعّل التنبيهات لتصلك رسالة أول ما تنزل حلقة جديدة'}
+                ? 'التنبيهات مفعلة، ستصلك الحكايات فور نزولها!'
+                : 'فعّل التنبيهات لتصلك رسالة أول ما تنزل حلقة'}
             </p>
           </div>
           <button
+            type="button"
             onClick={() => {
               onSoundTrigger();
               onToggleNotifications();
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 ${
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 min-h-[40px] ${
               notificationsEnabled
                 ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-amber-400 text-slate-900 hover:bg-amber-500 shadow-xs'
+                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
             }`}
           >
             {notificationsEnabled ? (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5" />
+                <Bell className="w-3.5 h-3.5 fill-white" />
                 <span>مفعلة</span>
               </>
             ) : (
               <>
                 <BellOff className="w-3.5 h-3.5" />
-                <span>تفعيل الآن</span>
+                <span>تفعيل</span>
               </>
             )}
           </button>
         </div>
 
         {/* Notifications List */}
-        <div className="p-4 space-y-3 overflow-y-auto flex-1">
-          {notifications.map((n) => (
+        <div className="overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 p-2 sm:p-3 space-y-2 flex-1">
+          {notifications.map((notif) => (
             <div
-              key={n.id}
+              key={notif.id}
               onClick={() => {
-                if (n.videoId) {
+                if (notif.videoId) {
                   onSoundTrigger();
-                  onSelectVideoById(n.videoId);
+                  onSelectVideoById(notif.videoId);
                   onClose();
                 }
               }}
-              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 hover:border-amber-300 dark:hover:border-amber-600 cursor-pointer transition space-y-1.5 group"
+              className={`p-3 rounded-2xl transition cursor-pointer flex items-start gap-3 hover:bg-amber-50/80 dark:hover:bg-slate-800/80 active:scale-[0.99] ${
+                notif.read
+                  ? 'bg-white dark:bg-slate-900'
+                  : 'bg-rose-50/40 dark:bg-slate-800/40 border border-rose-100 dark:border-rose-950'
+              }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-black text-slate-800 dark:text-amber-200 flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  {n.title}
-                </span>
-                <span className="text-[10px] text-slate-400">{n.date}</span>
+              <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
+                <Sparkles className="w-4 h-4" />
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                {n.message}
-              </p>
-              {n.videoId && (
-                <div className="text-[11px] font-bold text-rose-600 dark:text-rose-400 group-hover:underline pt-0.5">
-                  اضغط هنا لمشاهدة الحلقة فوراً ←
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h5 className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100">
+                    {notif.title}
+                  </h5>
+                  <span className="text-[10px] text-slate-400 font-medium shrink-0">{notif.date}</span>
                 </div>
-              )}
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                  {notif.message}
+                </p>
+                {notif.videoId && (
+                  <span className="inline-block text-[11px] font-black text-rose-500 pt-1">
+                    اضغط لمشاهدة الحكاية الآن ←
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Subscribe Footer Banner */}
-        <div className="p-3 bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 text-center">
+        {/* Modal Footer */}
+        <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
           <a
             href={OFFICIAL_CHANNEL_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700"
+            onClick={onSoundTrigger}
+            className="flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:underline min-h-[40px]"
           >
             <Youtube className="w-4 h-4 fill-red-600" />
-            <span>يمكنك أيضاً تفعيل الجرس مباشرة على صفحة يوتيوب</span>
+            <span>قناة قصة العائلة على يوتيوب</span>
           </a>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 min-h-[40px]"
+          >
+            إغلاق
+          </button>
         </div>
 
       </div>

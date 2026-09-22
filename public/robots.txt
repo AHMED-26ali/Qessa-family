@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://www.youtube.com/@Qessa-family
+Host: https://qessa-family.vercel.app
 
 # Sitemap
-Sitemap: /sitemap.xml
+Sitemap: https://qessa-family.vercel.app/sitemap.xml

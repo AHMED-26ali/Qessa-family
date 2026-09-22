@@ -5,6 +5,7 @@ import { CategoriesFilter } from './components/CategoriesFilter';
 import { VideoGrid } from './components/VideoGrid';
 import { NotificationsModal } from './components/NotificationsModal';
 import { ChannelBanner } from './components/ChannelBanner';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { INITIAL_VIDEOS } from './data/videos';
 import { VideoStory, StoryCategory, AppNotification } from './types';
 import { playCutePop, playSparkleChime } from './utils/audio';
@@ -125,6 +126,39 @@ export default function App() {
     localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
   }, [notifications]);
 
+  // Deep Link & URL query param listener (Supports /?v=VIDEO_ID and /?category=CATEGORY)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const videoIdParam = searchParams.get('v');
+      const categoryParam = searchParams.get('category') as StoryCategory | null;
+
+      if (videoIdParam) {
+        const found = INITIAL_VIDEOS.find((v) => v.id === videoIdParam);
+        if (found) {
+          setCurrentVideo(found);
+          document.title = `${found.cleanTitle} | قصة العائلة`;
+        }
+      }
+
+      if (categoryParam) {
+        setSelectedCategory(categoryParam);
+      }
+    }
+  }, []);
+
+  // Update URL param and document title when currentVideo changes
+  const handleSelectVideo = (video: VideoStory) => {
+    setCurrentVideo(video);
+    document.title = `${video.cleanTitle} | قصة العائلة - حكايات ورسوم متحركة للأطفال`;
+    if (typeof window !== 'undefined' && window.history.replaceState) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('v', video.id);
+      window.history.replaceState({}, '', url.toString());
+    }
+    window.scrollTo({ top: 40, behavior: 'smooth' });
+  };
+
   // Audio Triggers
   const triggerCutePop = useCallback(() => {
     playCutePop(soundEnabled);
@@ -219,19 +253,40 @@ export default function App() {
 
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
+  const handleGoHome = () => {
+    setSelectedCategory('all');
+    setSearchQuery('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenFavorites = () => {
+    setSelectedCategory('favorites');
+    setSearchQuery('');
+    const gridEl = document.getElementById('stories-library');
+    if (gridEl) {
+      gridEl.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 350, behavior: 'smooth' });
+    }
+  };
+
+  const handleFocusSearch = () => {
+    const searchInput = document.getElementById('mobile-search-input');
+    if (searchInput) {
+      searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      searchInput.focus();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-300 pb-20 md:pb-0">
       
       {/* 1. Header with Channel Identity, Bedtime Switcher, Favorites & Sound Toggle */}
       <Header
         isNightMode={isNightMode}
         onToggleNightMode={() => setIsNightMode((prev) => !prev)}
         favoritesCount={favorites.length}
-        onOpenFavorites={() => {
-          setSelectedCategory('favorites');
-          setSearchQuery('');
-          window.scrollTo({ top: 400, behavior: 'smooth' });
-        }}
+        onOpenFavorites={handleOpenFavorites}
         onOpenNotifications={() => {
           setIsNotificationsModalOpen(true);
           setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -247,7 +302,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3 sm:py-6 space-y-5 sm:space-y-8">
         
         {/* 2. Hero Section: Displays the Latest Upload Automatically & Currently Selected Story */}
         <HeroFeatured
@@ -269,28 +324,29 @@ export default function App() {
         />
 
         {/* 4. Stories Grid & Dedicated Featured Episodes Section */}
-        <VideoGrid
-          videos={filteredVideos}
-          featuredVideos={featuredVideos}
-          activeVideoId={currentVideo.id}
-          favorites={favorites}
-          selectedCategory={selectedCategory}
-          searchQuery={searchQuery}
-          onSelectVideo={(video) => {
-            setCurrentVideo(video);
-            window.scrollTo({ top: 60, behavior: 'smooth' });
-          }}
-          onToggleFavorite={handleToggleFavorite}
-          onSoundTrigger={triggerCutePop}
-          onResetCategory={() => {
-            setSelectedCategory('all');
-            setSearchQuery('');
-          }}
-        />
+        <div id="stories-library">
+          <VideoGrid
+            videos={filteredVideos}
+            featuredVideos={featuredVideos}
+            activeVideoId={currentVideo.id}
+            favorites={favorites}
+            selectedCategory={selectedCategory}
+            searchQuery={searchQuery}
+            onSelectVideo={(video) => {
+              handleSelectVideo(video);
+            }}
+            onToggleFavorite={handleToggleFavorite}
+            onSoundTrigger={triggerCutePop}
+            onResetCategory={() => {
+              setSelectedCategory('all');
+              setSearchQuery('');
+            }}
+          />
+        </div>
 
       </main>
 
-      {/* 5. Channel Highlight Card & Safe Guarantee Footer (No visual keywords cloud) */}
+      {/* 5. Channel Highlight Card & Safe Guarantee Footer */}
       <ChannelBanner
         onSoundTrigger={triggerCutePop}
       />
@@ -305,10 +361,26 @@ export default function App() {
         onSelectVideoById={(id) => {
           const found = videos.find((v) => v.id === id);
           if (found) {
-            setCurrentVideo(found);
-            window.scrollTo({ top: 60, behavior: 'smooth' });
+            handleSelectVideo(found);
           }
         }}
+        onSoundTrigger={triggerCutePop}
+      />
+
+      {/* 7. Mobile Bottom Navigation Bar (Automatic for phones & tablets) */}
+      <MobileBottomNav
+        selectedCategory={selectedCategory}
+        onGoHome={handleGoHome}
+        favoritesCount={favorites.length}
+        onOpenFavorites={handleOpenFavorites}
+        unreadNotifications={unreadNotificationsCount}
+        onOpenNotifications={() => {
+          setIsNotificationsModalOpen(true);
+          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+        }}
+        isNightMode={isNightMode}
+        onToggleNightMode={() => setIsNightMode((prev) => !prev)}
+        onFocusSearch={handleFocusSearch}
         onSoundTrigger={triggerCutePop}
       />
 

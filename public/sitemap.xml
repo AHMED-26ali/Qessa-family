@@ -1,23 +1,536 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+
+  <!-- الرئيسية: الصفحة الرسمية لموقع قصة العائلة -->
   <url>
-    <loc>https://www.youtube.com/@Qessa-family</loc>
-    <lastmod>2026-09-21</lastmod>
+    <loc>https://qessa-family.vercel.app/</loc>
+    <lastmod>2026-09-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <video:video>
       <video:thumbnail_loc>https://img.youtube.com/vi/S5h4O4sRkNA/hqdefault.jpg</video:thumbnail_loc>
       <video:title>قصة الكلب بولت والقوى الخارقة - قصة العائلة</video:title>
       <video:description>حواديت قبل النوم كرتون اطفال بالعربي ورسوم متحركة هادفة على قناة قصة العائلة</video:description>
-      <video:player_loc>https://www.youtube-nocookie.com/embed/S5h4O4sRkNA</video:player_loc>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/S5h4O4sRkNA</video:player_loc>
+      <video:duration>860</video:duration>
       <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>حواديت قبل النوم</video:tag>
+      <video:tag>قصص اطفال</video:tag>
+      <video:tag>كرتون اطفال بالعربي</video:tag>
     </video:video>
   </url>
+
+  <!-- تصنيفات الحكايات -->
   <url>
-    <loc>https://www.youtube.com/@Qessa-family/videos</loc>
-    <lastmod>2026-09-21</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://qessa-family.vercel.app/?category=bedtime</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>https://qessa-family.vercel.app/?category=princesses</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://qessa-family.vercel.app/?category=animals</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://qessa-family.vercel.app/?category=adventure</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://qessa-family.vercel.app/?category=fantasy</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- الحلقات والفيديوهات الفردية لفهرسة جوجل السريعة -->
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=S5h4O4sRkNA</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/S5h4O4sRkNA/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>قصة الكلب بولت والقوى الخارقة | قصة العائلة</video:title>
+      <video:description>حدوتة شيقة عن الكلب بولت واكتشاف القوة الحقيقية للصداقة والشجاعة، رسوم متحركة بالعربي للأطفال.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/S5h4O4sRkNA</video:player_loc>
+      <video:duration>860</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الكلب بولت</video:tag>
+      <video:tag>حواديت قبل النوم</video:tag>
+      <video:tag>حيوانات الغابة</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=zKilkVjn7Ac</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/zKilkVjn7Ac/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>عائلة روبنسون والسفر عبر الزمن | قصة العائلة</video:title>
+      <video:description>مغامرة خيالية ممتعة تأخذ الأطفال في رحلة شيقة للمستقبل مع عائلة روبنسون المليئة بالاختراعات المدهشة.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/zKilkVjn7Ac</video:player_loc>
+      <video:duration>965</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>عائلة روبنسون</video:tag>
+      <video:tag>السفر عبر الزمن</video:tag>
+      <video:tag>خيال وفضاء ومرح</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=QIRsBZCPd9A</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/QIRsBZCPd9A/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>رايا وآخر تنين الأسطوري | قصة العائلة</video:title>
+      <video:description>قصة بطولية عن الأميرة المحاربة رايا ورحلتها الشجاعة لتوحيد شعبها وإعادة الأمل والنور إلى أرضها.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/QIRsBZCPd9A</video:player_loc>
+      <video:duration>940</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>رايا والتنين</video:tag>
+      <video:tag>مغامرات وأساطير</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=79NgvahMshg</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/79NgvahMshg/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>الأميرة رابونزل وسر الشعر الذهبي | قصة العائلة</video:title>
+      <video:description>حكاية الأميرة رابونزل في البرج العالي وقصة شعرها الذهبي السحري وكيف استطاعت رؤية العالم وتحقيق حلمها.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/79NgvahMshg</video:player_loc>
+      <video:duration>830</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>رابونزل</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=9DrJ_7Ddios</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/9DrJ_7Ddios/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>فأر المدينة وفأر الريف | قصة العائلة</video:title>
+      <video:description>حكاية ظريفة عن فأرين صديقين ومقارنة الحياة في الريف والمدينة بأسلوب كرتوني فكاهي وتربوي هادف.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/9DrJ_7Ddios</video:player_loc>
+      <video:duration>675</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>فأر المدينة وفأر الريف</video:tag>
+      <video:tag>حيوانات الغابة</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=cbT1OM0JLIQ</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/cbT1OM0JLIQ/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>فاسيليسا الجميلة والدمية السحرية | قصة العائلة</video:title>
+      <video:description>حكاية من الفلكلور العالمي عن فاسيليسا الطيبة التي تواجه الصعاب بفضل نصائح والدتها ودميتها المحبوبة.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/cbT1OM0JLIQ</video:player_loc>
+      <video:duration>910</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>فاسيليسا الجميلة</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=v6v0t-NU2lU</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/v6v0t-NU2lU/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>السندباد البحري وجزيرة الحوت العملاق | قصة العائلة</video:title>
+      <video:description>رحلة بحرية أسطورية للسندباد وبحارته الشجعان حيث يكتشفون جزيرة عجيبة تبين أنها حوت عملاق نائم.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/v6v0t-NU2lU</video:player_loc>
+      <video:duration>1050</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>السندباد البحري</video:tag>
+      <video:tag>مغامرات وأساطير</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=1_xNjOIRNrY</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/1_xNjOIRNrY/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>سر الأميرات الراقصات الـ 12 | قصة العائلة</video:title>
+      <video:description>لغز القصر الملكي حيث تختفي أحذية الأميرات كل ليلة، ومغامرة الجندي الذكي في كشف القصر السحري.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/1_xNjOIRNrY</video:player_loc>
+      <video:duration>885</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الأميرات الراقصات</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=5zZAbSgW6t4</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/5zZAbSgW6t4/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>كوكب الحلوى الفضائي العجيب | قصة العائلة</video:title>
+      <video:description>قصة خيالية ومضحكة جداً عن رواد فضاء صغار هبطوا على كوكب مصنوع بالكامل من السكاكر والشوكولاتة.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/5zZAbSgW6t4</video:player_loc>
+      <video:duration>770</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>كوكب الحلوى</video:tag>
+      <video:tag>خيال وفضاء ومرح</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=6tcXaaGfyPU</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/6tcXaaGfyPU/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>حورية البحر الصغيرة أريال | قصة العائلة</video:title>
+      <video:description>عالم الأعماق السحري وقصة الحورية الشابة التي تحلم باكتشاف العالم الخارجي والتعرف على كائنات البر.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/6tcXaaGfyPU</video:player_loc>
+      <video:duration>975</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>حورية البحر</video:tag>
+      <video:tag>أريال</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=oREWJ9ZCCP4</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/oREWJ9ZCCP4/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>سندريلا والحذاء الزجاجي السحري | قصة العائلة</video:title>
+      <video:description>القصة الكلاسيكية الخالدة لسندريلا ذات القلب الوديع التي تنال السعادة والعدل بفضل صبرها وأخلاقها الكريمة.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/oREWJ9ZCCP4</video:player_loc>
+      <video:duration>1080</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>سندريلا</video:tag>
+      <video:tag>الحذاء الزجاجي</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=VWanQ8ktkYM</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/VWanQ8ktkYM/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>بياض الثلج والأقزام السبعة سنو وايت | قصة العائلة</video:title>
+      <video:description>حكاية سنو وايت مع الأقزام السبعة في الغابة وتعاونهم الجميل لحمايتها ومساعدتها في بيتهم الدافئ.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/VWanQ8ktkYM</video:player_loc>
+      <video:duration>1040</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>سنو وايت</video:tag>
+      <video:tag>بياض الثلج</video:tag>
+      <video:tag>الأقزام السبعة</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=PyklIdkd2PM</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/PyklIdkd2PM/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>الجميلة والوحش وقصر الورود | قصة العائلة</video:title>
+      <video:description>قصة بيل المحبة للقراءة والكتب التي رأت الجمال الحقيقي الداخلي في قلب الوحش وساعدته في كسر اللعنة.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/PyklIdkd2PM</video:player_loc>
+      <video:duration>955</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الجميلة والوحش</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=DSkWf5ncyBk</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/DSkWf5ncyBk/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>ليلى وذات الرداء الأحمر | قصة العائلة</video:title>
+      <video:description>رحلة ليلى لزيارة جدتها في الغابة والدرس المهم الذي تعلمته بضرورة اتباع نصائح والدتها وعدم الحديث مع الغرباء.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/DSkWf5ncyBk</video:player_loc>
+      <video:duration>750</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>ذات الرداء الأحمر</video:tag>
+      <video:tag>ليلى والذئب</video:tag>
+      <video:tag>حواديت قبل النوم</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=ORv1-Y50SHg</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/ORv1-Y50SHg/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>سباق الأرنب المغرور والسلحفاة الصبورة | قصة العائلة</video:title>
+      <video:description>السباق الشهير في الغابة بين الأرنب السريع المتفاخر والسلحفاة الحكيمة التي ثابرت وواصلت حتى خط النهاية.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/ORv1-Y50SHg</video:player_loc>
+      <video:duration>645</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الأرنب والسلحفاة</video:tag>
+      <video:tag>حيوانات الغابة</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=homoIxPwwg0</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/homoIxPwwg0/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>جولديلوكس وبيت الدببة الثلاثة | قصة العائلة</video:title>
+      <video:description>مغامرة الطفلة جولديلوكس في كوخ الدببة وتعلمها احترام خصوصية وممتلكات الآخرين والاستئذان.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/homoIxPwwg0</video:player_loc>
+      <video:duration>710</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>جولديلوكس</video:tag>
+      <video:tag>الدببة الثلاثة</video:tag>
+      <video:tag>حواديت قبل النوم</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=JMO2j-7uOfo</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/JMO2j-7uOfo/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>جاك ونبتة الفاصوليا السحرية | قصة العائلة</video:title>
+      <video:description>شجرة الفاصوليا العملاقة التي ترتفع فوق السحاب إلى قلعة العملاق، وحكاية الدجاجة الذهبية والقيثارة المغنية.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/JMO2j-7uOfo</video:player_loc>
+      <video:duration>855</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>جاك ونبتة الفاصوليا</video:tag>
+      <video:tag>مغامرات وأساطير</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=TGeh3nXJtC8</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/TGeh3nXJtC8/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>الذئب والسبع خراف الصغار | قصة العائلة</video:title>
+      <video:description>حكاية الخراف الصغار وشجاعة أمهم في حمايتهم من حيل الذئب في الغابة مع نصائح للأطفال لحماية أنفسهم.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/TGeh3nXJtC8</video:player_loc>
+      <video:duration>780</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الذئب والسبع خراف</video:tag>
+      <video:tag>حيوانات الغابة</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=sY0vry6WyBc</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/sY0vry6WyBc/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>راعي الغنم وأهمية الصدق | قصة العائلة</video:title>
+      <video:description>الدرس الهام للراعي الشاب الذي أدرك عواقب المزاح الكاذب حين طلب النجدة ولم يصدقه أهل القرية.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/sY0vry6WyBc</video:player_loc>
+      <video:duration>690</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>راعي الغنم الكذاب</video:tag>
+      <video:tag>حواديت قبل النوم</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=Z9zdniPaRHQ</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/Z9zdniPaRHQ/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>الأميرة النائمة أورورا وأزهار الغابة | قصة العائلة</video:title>
+      <video:description>قصة الأميرة أورورا والجنيات الطيبات وقوة الخير والمحبة في مواجهة الظلام في المملكة السحرية.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/Z9zdniPaRHQ</video:player_loc>
+      <video:duration>920</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الأميرة النائمة</video:tag>
+      <video:tag>أورورا</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=xPy-X37grbU</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/xPy-X37grbU/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>الأميرة والضفدع والوعد الصادق | قصة العائلة</video:title>
+      <video:description>الأميرة الصغيرة التي تفي بوعدها للضفدع الذي أنقذ كرتها الذهبية، لتكتشف سر اللعنة التي كانت تحيط به.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/xPy-X37grbU</video:player_loc>
+      <video:duration>820</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الأميرة والضفدع</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=aTiiAEQN-dI</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/aTiiAEQN-dI/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>هانسل وغريتل والبيت العجيب | قصة العائلة</video:title>
+      <video:description>الأخوان هانسل وغريتل وذكاؤهما في التغلب على الصعاب في الغابة والعودة سالمين بفضل تعاونهما معاً.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/aTiiAEQN-dI</video:player_loc>
+      <video:duration>890</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>هانسل وغريتل</video:tag>
+      <video:tag>مغامرات وأساطير</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=c65YTzRJocc</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/c65YTzRJocc/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>الطائر الناري والريشة الذهبية | قصة العائلة</video:title>
+      <video:description>أسطورة خيالية عن الطائر الناري المتوهج والمغامرة الشجاعة في مملكة الخيال لحماية أسرار الطبيعة.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/c65YTzRJocc</video:player_loc>
+      <video:duration>1000</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>الطائر الناري</video:tag>
+      <video:tag>مغامرات وأساطير</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=CYhNbyoOmps</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/CYhNbyoOmps/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>عقلة الإصبع ثامبلينا وزهرة التيوليب | قصة العائلة</video:title>
+      <video:description>قصة الفتاة الصغيرة الشجاعة ثامبلينا وصداقتها الرقيقة مع فراشات الغابة وطائر السنونو الوفي.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/CYhNbyoOmps</video:player_loc>
+      <video:duration>805</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>ثامبلينا</video:tag>
+      <video:tag>عقلة الإصبع</video:tag>
+      <video:tag>خيال وفضاء ومرح</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=9cU6aHwBJYQ</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/9cU6aHwBJYQ/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>سندريلا وضيوف القصر المرحين | قصة العائلة</video:title>
+      <video:description>مغامرة كوميدية خفيفة للأطفال في قصر سندريلا مع أصدقائها الفئران الظريفين جاق وغاس.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/9cU6aHwBJYQ</video:player_loc>
+      <video:duration>730</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>سندريلا</video:tag>
+      <video:tag>قصص الأميرات</video:tag>
+    </video:video>
+  </url>
+
+  <url>
+    <loc>https://qessa-family.vercel.app/?v=9oSzW6VgnBU</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <video:video>
+      <video:thumbnail_loc>https://img.youtube.com/vi/9oSzW6VgnBU/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>شخصيات فنانيس والفانوس العجيب | قصة العائلة</video:title>
+      <video:description>حلقات ورسوم متحركة طريفة ومحبوبة للأطفال تجمع بين الضحك والبهجة والمواقف الطريفة.</video:description>
+      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/9oSzW6VgnBU</video:player_loc>
+      <video:duration>615</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+      <video:uploader info="https://www.youtube.com/@Qessa-family">قناة قصة العائلة | Qessa family</video:uploader>
+      <video:tag>فنانيس</video:tag>
+      <video:tag>الفانوس العجيب</video:tag>
+      <video:tag>خيال وفضاء ومرح</video:tag>
+    </video:video>
+  </url>
+
 </urlset>
