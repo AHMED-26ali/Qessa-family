@@ -4,9 +4,10 @@ import { OFFICIAL_CHANNEL_URL, CHANNEL_HANDLE, CHANNEL_NAME } from '../data/vide
 
 interface ChannelBannerProps {
   onSoundTrigger: () => void;
+  onOpenWelcome?: () => void;
 }
 
-export const ChannelBanner: React.FC<ChannelBannerProps> = ({ onSoundTrigger }) => {
+export const ChannelBanner: React.FC<ChannelBannerProps> = ({ onSoundTrigger, onOpenWelcome }) => {
   return (
     <footer className="mt-8 sm:mt-16 pt-6 sm:pt-8 pb-10 sm:pb-12 border-t sm:border-t-2 border-amber-200/60 dark:border-indigo-950/80 bg-gradient-to-b from-transparent via-amber-50/40 to-amber-100/30 dark:via-slate-900/40 dark:to-slate-950 transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 space-y-6 sm:space-y-8">
@@ -60,11 +61,19 @@ export const ChannelBanner: React.FC<ChannelBannerProps> = ({ onSoundTrigger }) 
                 rel="noopener noreferrer"
                 onClick={onSoundTrigger}
                 aria-label="اشترك في قناة قصة العائلة على يوتيوب"
-                className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 active:scale-95 font-black text-xs sm:text-base shadow-lg flex items-center justify-center gap-2 transition min-h-[44px]"
+                className="group w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 active:scale-95 font-black text-xs sm:text-base shadow-lg flex items-center justify-center gap-2.5 transition min-h-[44px]"
               >
-                <Youtube className="w-4 h-4 sm:w-5 sm:h-5 fill-rose-600 shrink-0" />
+                <div className="relative flex items-center justify-center shrink-0">
+                  <span
+                    className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-red-600 blur-xs opacity-75 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300 animate-pulse pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <span className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-rose-600 text-white shadow-xs">
+                    <Youtube className="w-3.5 h-3.5 fill-white text-white shrink-0" aria-hidden="true" />
+                  </span>
+                </div>
                 <span>اشترك في القناة على يوتيوب</span>
-                <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+                <ExternalLink className="w-3.5 h-3.5 opacity-70" aria-hidden="true" />
               </a>
             </div>
 

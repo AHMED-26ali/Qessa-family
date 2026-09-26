@@ -3,46 +3,20 @@ import { Header } from './components/Header';
 import { HeroFeatured } from './components/HeroFeatured';
 import { CategoriesFilter } from './components/CategoriesFilter';
 import { VideoGrid } from './components/VideoGrid';
-import { NotificationsModal } from './components/NotificationsModal';
 import { ChannelBanner } from './components/ChannelBanner';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { WelcomeModal } from './components/WelcomeModal';
 import { INITIAL_VIDEOS } from './data/videos';
 import { VideoStory, StoryCategory, AppNotification } from './types';
 import { playCutePop, playSparkleChime } from './utils/audio';
+import { matchesSearchQuery } from './utils/search';
+import { loadAllVideos, saveCustomVideos, fetchLatestChannelEpisodes } from './utils/youtubeLiveSync';
 
 const STORAGE_KEYS = {
   FAVORITES: 'qessa_family_favs_v2',
   NIGHT_MODE: 'qessa_family_night_v2',
   SOUND_ENABLED: 'qessa_family_sound_v2',
-  NOTIFICATIONS: 'qessa_family_notifs_v2',
 };
-
-const DEFAULT_NOTIFICATIONS: AppNotification[] = [
-  {
-    id: 'notif-1',
-    title: 'حكاية جديدة نزلت الآن! 🎬',
-    message: 'شاهد مغامرة الكلب بولت والقوى الخارقة حصرياً على قناة قصة العائلة.',
-    date: 'اليوم',
-    videoId: 'S5h4O4sRkNA',
-    read: false,
-  },
-  {
-    id: 'notif-2',
-    title: 'رحلة عبر الزمن مع روبنسون 🚀',
-    message: 'حلقة مشوقة جداً للأطفال عن عائلة روبنسون والسفر للمستقبل.',
-    date: 'أمس',
-    videoId: 'zKilkVjn7Ac',
-    read: false,
-  },
-  {
-    id: 'notif-3',
-    title: 'حكايات الأميرات الكلاسيكية 👑',
-    message: 'تمت إضافة قصة الأميرة رابونزل وسر الشعر الطويل بدقة عالية.',
-    date: 'هذا الأسبوع',
-    videoId: '79NgvahMshg',
-    read: true,
-  },
-];
 
 export default function App() {
   // 1. Night Mode State (Bedtime mode for comfortable eyes)
@@ -65,41 +39,62 @@ export default function App() {
     return true;
   });
 
-  // 3. Videos List (Latest video is the first item)
-  const [videos] = useState<VideoStory[]>(INITIAL_VIDEOS);
-  const [currentVideo, setCurrentVideo] = useState<VideoStory>(INITIAL_VIDEOS[0]);
-
-  // 4. Favorites State
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {}
-      }
-    }
-    return ['S5h4O4sRkNA', '79NgvahMshg', 'v6v0t-NU2lU'];
+  // 3. Videos List & Latest Video (Automatically loads newest video first)
+  const [videos, setVideos] = useState<VideoStory[]>(() => loadAllVideos());
+  const [currentVideo, setCurrentVideo] = useState<VideoStory>(() => {
+    const all = loadAllVideos();
+    return all[0] || INITIAL_VIDEOS[0];
   });
 
-  // 5. Filtering State
+  // 4. Filtering State
   const [selectedCategory, setSelectedCategory] = useState<StoryCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 6. Notifications State
-  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {}
+  // 5. Welcome Modal: Shows AUTOMATICALLY every time the site is opened or refreshed
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(true);
+
+  const handleCloseWelcome = () => {
+    setIsWelcomeModalOpen(false);
+  };
+
+  // 6. Automatic Live Synchronization for Latest Uploads
+  // Checks YouTube channel feed and updates the latest episode automatically
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncChannel = async () => {
+      try {
+        const fresh = await fetchLatestChannelEpisodes();
+        if (!isMounted || fresh.length === 0) return;
+
+        setVideos((prev) => {
+          const existingIds = new Set(prev.map((v) => v.id));
+          const trulyNew = fresh.filter((v) => !existingIds.has(v.id));
+
+          if (trulyNew.length > 0) {
+            const merged = [...trulyNew, ...prev];
+            saveCustomVideos(merged);
+
+            // Auto-update Hero Section to the newly released episode!
+            setCurrentVideo(merged[0]);
+            return merged;
+          }
+          return prev;
+        });
+      } catch (e) {
+        // Silently keep current video list
       }
-    }
-    return DEFAULT_NOTIFICATIONS;
-  });
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+    };
+
+    syncChannel();
+
+    // Check periodically (every 10 minutes) while app is open
+    const interval = setInterval(syncChannel, 10 * 60 * 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Sync Night Mode Class to <html>
   useEffect(() => {
@@ -115,16 +110,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, JSON.stringify(soundEnabled));
   }, [soundEnabled]);
-
-  // Sync Favorites to LocalStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
-  }, [favorites]);
-
-  // Sync Notifications
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
-  }, [notifications]);
 
   // Deep Link & URL query param listener (Supports /?v=VIDEO_ID and /?category=CATEGORY)
   useEffect(() => {
@@ -168,42 +153,27 @@ export default function App() {
     playSparkleChime(soundEnabled);
   }, [soundEnabled]);
 
-  // Favorite toggle handler
-  const handleToggleFavorite = (videoId: string) => {
-    setFavorites((prev) => {
-      const exists = prev.includes(videoId);
-      if (!exists) {
-        triggerSparkle();
-        return [...prev, videoId];
-      } else {
-        triggerCutePop();
-        return prev.filter((id) => id !== videoId);
-      }
-    });
-  };
-
   // Filtered videos based on category and search
   const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
-      // 1. Favorites Category Filter
-      if (selectedCategory === 'favorites') {
-        if (!favorites.includes(video.id)) return false;
-      } else if (selectedCategory !== 'all') {
-        if (video.category !== selectedCategory) return false;
+      // 1. Search Query Filter with Arabic normalization
+      if (searchQuery.trim()) {
+        const matches = matchesSearchQuery(
+          [video.cleanTitle, video.title, video.description, video.moralLesson, video.categoryNameAr],
+          searchQuery
+        );
+        if (!matches) return false;
+        return true;
       }
 
-      // 2. Search Query Filter
-      if (searchQuery.trim()) {
-        const query = searchQuery.trim().toLowerCase();
-        const matchesTitle = video.cleanTitle.toLowerCase().includes(query) || video.title.toLowerCase().includes(query);
-        const matchesDesc = video.description.toLowerCase().includes(query);
-        const matchesMoral = video.moralLesson?.toLowerCase().includes(query);
-        return matchesTitle || matchesDesc || matchesMoral;
+      // Standard category filtering
+      if (selectedCategory !== 'all') {
+        return video.category === selectedCategory;
       }
 
       return true;
     });
-  }, [videos, selectedCategory, searchQuery, favorites]);
+  }, [videos, selectedCategory, searchQuery]);
 
   // Category counts
   const categoryCounts = useMemo(() => {
@@ -214,7 +184,7 @@ export default function App() {
       bedtime: 0,
       adventure: 0,
       fantasy: 0,
-      favorites: favorites.length,
+      favorites: 0,
     };
 
     videos.forEach((v) => {
@@ -224,34 +194,12 @@ export default function App() {
     });
 
     return counts;
-  }, [videos, favorites]);
+  }, [videos]);
 
   // Featured videos for top shelf
   const featuredVideos = useMemo(() => {
     return videos.filter((v) => v.isFeatured && v.id !== currentVideo.id);
   }, [videos, currentVideo]);
-
-  // Notification toggle
-  const handleToggleNotifications = async () => {
-    if (!notificationsEnabled) {
-      if (typeof window !== 'undefined' && 'Notification' in window) {
-        try {
-          const permission = await Notification.requestPermission();
-          if (permission === 'granted') {
-            new Notification('قناة قصة العائلة', {
-              body: 'تم تفعيل التنبيهات بنجاح! ستصلك أحدث الحلقات الكرتونية فور نشرها.',
-              icon: '/logo.jpg',
-            });
-          }
-        } catch {}
-      }
-      setNotificationsEnabled(true);
-    } else {
-      setNotificationsEnabled(false);
-    }
-  };
-
-  const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
   const handleGoHome = () => {
     setSelectedCategory('all');
@@ -259,14 +207,10 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleOpenFavorites = () => {
-    setSelectedCategory('favorites');
-    setSearchQuery('');
+  const handleSearchSubmit = () => {
     const gridEl = document.getElementById('stories-library');
     if (gridEl) {
       gridEl.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 350, behavior: 'smooth' });
     }
   };
 
@@ -281,17 +225,14 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-300 pb-20 md:pb-0">
       
-      {/* 1. Header with Channel Identity, Bedtime Switcher, Favorites & Sound Toggle */}
+      {/* 1. Header with Channel Identity, Bedtime Switcher & Sound Toggle */}
       <Header
         isNightMode={isNightMode}
         onToggleNightMode={() => setIsNightMode((prev) => !prev)}
-        favoritesCount={favorites.length}
-        onOpenFavorites={handleOpenFavorites}
-        onOpenNotifications={() => {
-          setIsNotificationsModalOpen(true);
-          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-        }}
-        unreadNotifications={unreadNotificationsCount}
+        favoritesCount={0}
+        onOpenFavorites={() => {}}
+        onOpenNotifications={() => {}}
+        unreadNotifications={0}
         soundEnabled={soundEnabled}
         onToggleSound={() => setSoundEnabled((prev) => !prev)}
         searchQuery={searchQuery}
@@ -299,6 +240,9 @@ export default function App() {
           setSearchQuery(q);
         }}
         onSoundTrigger={triggerCutePop}
+        videos={videos}
+        onSelectVideo={handleSelectVideo}
+        onSearchSubmit={handleSearchSubmit}
       />
 
       {/* Main Content Area */}
@@ -307,10 +251,8 @@ export default function App() {
         {/* 2. Hero Section: Displays the Latest Upload Automatically & Currently Selected Story */}
         <HeroFeatured
           currentVideo={currentVideo}
-          isFavorite={favorites.includes(currentVideo.id)}
-          onToggleFavorite={handleToggleFavorite}
           onSoundTrigger={triggerCutePop}
-          isLatestUpload={currentVideo.id === INITIAL_VIDEOS[0].id}
+          isLatestUpload={currentVideo.id === videos[0]?.id}
         />
 
         {/* 3. Kid-Friendly Colorful Categories Pill Selector */}
@@ -329,13 +271,13 @@ export default function App() {
             videos={filteredVideos}
             featuredVideos={featuredVideos}
             activeVideoId={currentVideo.id}
-            favorites={favorites}
+            favorites={[]}
             selectedCategory={selectedCategory}
             searchQuery={searchQuery}
             onSelectVideo={(video) => {
               handleSelectVideo(video);
             }}
-            onToggleFavorite={handleToggleFavorite}
+            onToggleFavorite={() => {}}
             onSoundTrigger={triggerCutePop}
             onResetCategory={() => {
               setSelectedCategory('all');
@@ -351,33 +293,18 @@ export default function App() {
         onSoundTrigger={triggerCutePop}
       />
 
-      {/* 6. Notifications & Alerts Modal */}
-      <NotificationsModal
-        isOpen={isNotificationsModalOpen}
-        onClose={() => setIsNotificationsModalOpen(false)}
-        notifications={notifications}
-        notificationsEnabled={notificationsEnabled}
-        onToggleNotifications={handleToggleNotifications}
-        onSelectVideoById={(id) => {
-          const found = videos.find((v) => v.id === id);
-          if (found) {
-            handleSelectVideo(found);
-          }
-        }}
-        onSoundTrigger={triggerCutePop}
+      {/* 6. Welcome Screen Modal: Opens AUTOMATICALLY ONLY on the first visit */}
+      <WelcomeModal
+        isOpen={isWelcomeModalOpen}
+        onClose={handleCloseWelcome}
+        onSoundTrigger={triggerSparkle}
+        soundEnabled={soundEnabled}
       />
 
-      {/* 7. Mobile Bottom Navigation Bar (Automatic for phones & tablets) */}
+      {/* 7. Mobile Bottom Navigation Bar (Streamlined) */}
       <MobileBottomNav
         selectedCategory={selectedCategory}
         onGoHome={handleGoHome}
-        favoritesCount={favorites.length}
-        onOpenFavorites={handleOpenFavorites}
-        unreadNotifications={unreadNotificationsCount}
-        onOpenNotifications={() => {
-          setIsNotificationsModalOpen(true);
-          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-        }}
         isNightMode={isNightMode}
         onToggleNightMode={() => setIsNightMode((prev) => !prev)}
         onFocusSearch={handleFocusSearch}

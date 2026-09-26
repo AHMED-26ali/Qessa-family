@@ -28,7 +28,6 @@ export const CATEGORIES_LIST: { id: VideoStory['category']; name: string; emoji:
   { id: 'adventure', name: 'مغامرات وأساطير', emoji: '⛵', bgClass: 'bg-sky-100 dark:bg-sky-950/60', textClass: 'text-sky-800 dark:text-sky-300', borderClass: 'border-sky-300 dark:border-sky-700' },
   { id: 'bedtime', name: 'حواديت قبل النوم', emoji: '🌙', bgClass: 'bg-indigo-100 dark:bg-indigo-950/60', textClass: 'text-indigo-800 dark:text-indigo-300', borderClass: 'border-indigo-300 dark:border-indigo-700' },
   { id: 'fantasy', name: 'خيال وفضاء ومرح', emoji: '🍭', bgClass: 'bg-purple-100 dark:bg-purple-950/60', textClass: 'text-purple-800 dark:text-purple-300', borderClass: 'border-purple-300 dark:border-purple-700' },
-  { id: 'favorites', name: 'مفضلاتي', emoji: '❤️', bgClass: 'bg-rose-100 dark:bg-rose-950/60', textClass: 'text-rose-800 dark:text-rose-300', borderClass: 'border-rose-300 dark:border-rose-700' },
 ];
 
 export const INITIAL_VIDEOS: VideoStory[] = [

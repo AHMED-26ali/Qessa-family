@@ -1,26 +1,31 @@
-import React, { useState } from 'react';
-import { Play, Heart, Sparkles, Star, Clock, Youtube, RotateCcw, Share2, Check, Tv } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play, Heart, Sparkles, Star, Clock, Youtube, RotateCcw, Share2, Check, Tv, ExternalLink } from 'lucide-react';
 import { VideoStory } from '../types';
 import { OFFICIAL_CHANNEL_URL } from '../data/videos';
 
 interface HeroFeaturedProps {
   currentVideo: VideoStory;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
   onSoundTrigger: () => void;
   isLatestUpload?: boolean;
+  onRefreshLatest?: () => void;
+  isSyncing?: boolean;
 }
 
 export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
   currentVideo,
-  isFavorite,
-  onToggleFavorite,
   onSoundTrigger,
   isLatestUpload = false,
+  onRefreshLatest,
+  isSyncing = false,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [cinemaLights, setCinemaLights] = useState(false);
+
+  // Ensure videos NEVER play automatically: always reset to preview/thumbnail mode when selecting or switching stories
+  useEffect(() => {
+    setIsPlaying(false);
+  }, [currentVideo.id]);
 
   const handleStartPlay = () => {
     onSoundTrigger();
@@ -43,6 +48,11 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
     }
   };
 
+  // Official YouTube Embed Configuration to ensure views & watch hours are fully tracked by YouTube Analytics
+  const pageOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+  const pageHref = typeof window !== 'undefined' ? window.location.href : '';
+  const officialYouTubeEmbedUrl = `https://www.youtube.com/embed/${currentVideo.id}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(pageOrigin)}&widget_referrer=${encodeURIComponent(pageHref)}&rel=0&playsinline=1`;
+
   return (
     <section className={`relative overflow-hidden rounded-2xl sm:rounded-3xl transition-all duration-500 ${
       cinemaLights
@@ -60,10 +70,13 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {isLatestUpload ? (
-              <span className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-black bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md">
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                <span>أحدث حلقة! 🚀</span>
-              </span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-black bg-gradient-to-r from-rose-600 via-pink-600 to-amber-500 text-white shadow-md">
+                <Sparkles className="w-3.5 h-3.5 shrink-0 animate-twinkle" />
+                <span>أحدث حلقة تم نشرها 🚀</span>
+                <span className="hidden sm:inline-block text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold">
+                  تتحدث تلقائياً مع كل فيديو جديد
+                </span>
+              </div>
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md">
                 <Star className="w-3.5 h-3.5 fill-white shrink-0" />
@@ -104,13 +117,12 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
               href={OFFICIAL_CHANNEL_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="قناة قصة العائلة الرسمية على يوتيوب @Qessa-family"
-              title="زيارة قناة قصة العائلة على يوتيوب"
+              aria-label="زيارة قناة قصة العائلة على يوتيوب"
+              title="قناة قصة العائلة الرسمية على يوتيوب"
               className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-red-600 dark:text-red-400 hover:underline px-1.5 sm:px-2 py-1 min-h-[32px]"
             >
               <Youtube className="w-3.5 h-3.5 fill-red-600 shrink-0" aria-hidden="true" />
-              <span className="sr-only">قناة قصة العائلة الرسمية على يوتيوب</span>
-              <span>@Qessa-family</span>
+              <span>زيارة قناة قصة العائلة على يوتيوب (@Qessa-family)</span>
             </a>
           </div>
         </div>
@@ -121,12 +133,12 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
         }`}>
           {isPlaying ? (
             <iframe
-              src={`https://www.youtube-nocookie.com/embed/${currentVideo.id}?autoplay=1&rel=0&modestbranding=1`}
+              src={officialYouTubeEmbedUrl}
               title={currentVideo.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
+              referrerPolicy="origin-when-cross-origin"
               className="w-full h-full border-0"
-              loading="lazy"
             />
           ) : (
             <div className="relative w-full h-full group cursor-pointer" onClick={handleStartPlay}>
@@ -148,7 +160,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                 <button
                   type="button"
                   aria-label="تشغيل الحكاية"
-                  className="relative flex items-center justify-center w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 hover:scale-110 active:scale-95 text-white shadow-2xl transition-transform duration-300 ring-4 ring-white/60"
+                  className="relative flex items-center justify-center w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 hover:scale-110 active:scale-95 text-white shadow-2xl transition-transform duration-300 ring-4 ring-white/60 cursor-pointer"
                 >
                   <Play className="w-8 h-8 sm:w-10 sm:h-10 fill-white ml-1" />
                 </button>
@@ -196,22 +208,44 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
           </div>
 
           {/* Quick Action Buttons (Touch Friendly) */}
-          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 pt-1">
-            {/* Favorite Button */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0 pt-1">
+            {/* Manual Play Story Button */}
+            {!isPlaying && (
+              <button
+                type="button"
+                onClick={handleStartPlay}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-black bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 hover:from-amber-600 hover:to-pink-600 text-white shadow-md shadow-rose-500/25 active:scale-95 transition min-h-[44px] cursor-pointer"
+                title="بدء تشغيل الحكاية"
+              >
+                <Play className="w-4 h-4 fill-white" />
+                <span>تشغيل الحكاية</span>
+              </button>
+            )}
+
+            {/* Direct Watch on YouTube button for 100% full view & watch hour attribution */}
+            <a
+              href={`https://www.youtube.com/watch?v=${currentVideo.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onSoundTrigger}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-black bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/25 active:scale-95 transition min-h-[44px] cursor-pointer"
+              title="مشاهدة على تطبيق أو موقع يوتيوب الرسمي"
+            >
+              <Youtube className="w-4 h-4 fill-white shrink-0" aria-hidden="true" />
+              <span>مشاهدة على YouTube</span>
+              <ExternalLink className="w-3 h-3 opacity-80" aria-hidden="true" />
+            </a>
+
+            {/* Share / Copy Link Button */}
             <button
               type="button"
-              onClick={() => {
-                onSoundTrigger();
-                onToggleFavorite(currentVideo.id);
-              }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-black transition-all shadow-md transform active:scale-95 min-h-[44px] ${
-                isFavorite
-                  ? 'bg-rose-500 text-white hover:bg-rose-600'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/40'
-              }`}
+              onClick={handleShare}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-black bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition min-h-[44px] shadow-sm active:scale-95 cursor-pointer"
+              title="مشاركة رابط الحكاية"
+              aria-label="مشاركة"
             >
-              <Heart className={`w-4 h-4 shrink-0 ${isFavorite ? 'fill-white text-white' : 'text-rose-500'}`} />
-              <span>{isFavorite ? 'بالمفضلة ❤️' : 'إضافة للمفضلة'}</span>
+              {isCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
+              <span>{isCopied ? 'تم نسخ الرابط! ✓' : 'مشاركة الحكاية'}</span>
             </button>
 
             {/* Restart Button if Playing */}
@@ -223,24 +257,13 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                   setIsPlaying(false);
                   setTimeout(() => setIsPlaying(true), 100);
                 }}
-                className="p-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
+                className="p-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90 cursor-pointer"
                 title="إعادة تشغيل الحكاية من الأول"
                 aria-label="إعادة التشغيل"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
             )}
-
-            {/* Share / Copy Link */}
-            <button
-              type="button"
-              onClick={handleShare}
-              className="p-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90"
-              title="مشاركة رابط الحكاية"
-              aria-label="مشاركة"
-            >
-              {isCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
-            </button>
           </div>
         </div>
 

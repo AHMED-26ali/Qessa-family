@@ -61,3 +61,77 @@ body {
 .animate-spin-slow {
   animation: spinSlow 20s linear infinite;
 }
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes magicGlow {
+  0%, 100% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.45));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 24px rgba(251, 191, 36, 0.75));
+  }
+}
+
+.animate-float {
+  animation: floatGentle 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatGentle 5s ease-in-out infinite 1.5s;
+}
+
+.animate-twinkle {
+  animation: twinkle 2.5s ease-in-out infinite;
+}
+
+.animate-twinkle-delayed {
+  animation: twinkle 3s ease-in-out infinite 1s;
+}
+
+.animate-magic-glow {
+  animation: magicGlow 3s ease-in-out infinite;
+}
+
+@keyframes shootingStar {
+  0% {
+    transform: translate(0, 0) rotate(-35deg) scale(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50px, 35px) rotate(-35deg) scale(1);
+  }
+  70% {
+    opacity: 0.9;
+    transform: translate(-260px, 182px) rotate(-35deg) scale(0.9);
+  }
+  100% {
+    transform: translate(-380px, 266px) rotate(-35deg) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.animate-shooting-star {
+  animation: shootingStar 4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+}
