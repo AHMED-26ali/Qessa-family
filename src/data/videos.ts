@@ -28,9 +28,24 @@ export const CATEGORIES_LIST: { id: VideoStory['category']; name: string; emoji:
   { id: 'adventure', name: 'مغامرات وأساطير', emoji: '⛵', bgClass: 'bg-sky-100 dark:bg-sky-950/60', textClass: 'text-sky-800 dark:text-sky-300', borderClass: 'border-sky-300 dark:border-sky-700' },
   { id: 'bedtime', name: 'حواديت قبل النوم', emoji: '🌙', bgClass: 'bg-indigo-100 dark:bg-indigo-950/60', textClass: 'text-indigo-800 dark:text-indigo-300', borderClass: 'border-indigo-300 dark:border-indigo-700' },
   { id: 'fantasy', name: 'خيال وفضاء ومرح', emoji: '🍭', bgClass: 'bg-purple-100 dark:bg-purple-950/60', textClass: 'text-purple-800 dark:text-purple-300', borderClass: 'border-purple-300 dark:border-purple-700' },
+  { id: 'favorites', name: 'حكاياتي المفضلة', emoji: '❤️', bgClass: 'bg-rose-100 dark:bg-rose-950/60', textClass: 'text-rose-800 dark:text-rose-300', borderClass: 'border-rose-300 dark:border-rose-700' },
 ];
 
 export const INITIAL_VIDEOS: VideoStory[] = [
+  {
+    id: 'opSJHrJX3mc',
+    title: 'الثعلب مكرون وكذبة التفاحة | قصص أطفال عن الصدق والأمانة | حواديت حيوانات الغابة',
+    cleanTitle: 'الثعلب مكرون وكذبة التفاحة الذهبية',
+    description: 'حكاية شيقة للأطفال عن الثعلب مكرون الذي تعلم درساً مهماً في الصدق والأمانة وكيف أن قول الحقيقة ينجي صاحبه دائماً.',
+    category: 'animals',
+    categoryNameAr: 'حيوانات الغابة',
+    duration: '14:30',
+    viewsApprox: 'جديد',
+    isFeatured: true,
+    ageRecommendation: '3+',
+    moralLesson: 'الصدق والأمانة يجلبان محبة الأصدقاء، والكذب يوقع صاحبه في المتاعب',
+    publishedDate: 'أحدث حلقة تم نشرها 🚀'
+  },
   {
     id: 'S5h4O4sRkNA',
     title: 'حواديت قبل النوم | قصة الكلب بولت والقوى الخارقة | كرتون اطفال بالعربي | رسوم متحركة',

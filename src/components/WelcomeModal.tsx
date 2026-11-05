@@ -47,6 +47,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   onClose,
   onSoundTrigger,
   soundEnabled = true,
+  dontShowAgain = false,
   onToggleDontShowAgain,
 }) => {
   const startButtonRef = useRef<HTMLButtonElement>(null);
@@ -54,50 +55,12 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   const [activeStoryPillar, setActiveStoryPillar] = useState<number | null>(null);
   const [interactiveStars, setInteractiveStars] = useState<InteractiveStar[]>([]);
 
-  // Automatically play gentle fairytale welcome music on its own when modal opens
+  // Stop any melody on unmount
   useEffect(() => {
-    if (!isOpen) {
-      stopWelcomeMelody();
-      return;
-    }
-
-    if (!soundEnabled) return;
-
-    let hasPlayed = false;
-
-    const playMelody = () => {
-      if (hasPlayed) return;
-      hasPlayed = true;
-      playWelcomeFairytaleMelody(true);
-    };
-
-    // 1. Immediate background autoplay attempt
-    playMelody();
-
-    // 2. Gesture fallback for strict browser autoplay policies:
-    // Starts music automatically on the very first touch/click/key anywhere on the page
-    const handleFirstGesture = () => {
-      if (!hasPlayed) {
-        playMelody();
-      }
-      removeGestureListeners();
-    };
-
-    const removeGestureListeners = () => {
-      window.removeEventListener('pointerdown', handleFirstGesture);
-      window.removeEventListener('touchstart', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
-    };
-
-    window.addEventListener('pointerdown', handleFirstGesture, { once: true, passive: true });
-    window.addEventListener('touchstart', handleFirstGesture, { once: true, passive: true });
-    window.addEventListener('keydown', handleFirstGesture, { once: true, passive: true });
-
     return () => {
-      removeGestureListeners();
       stopWelcomeMelody();
     };
-  }, [isOpen, soundEnabled]);
+  }, []);
 
   // Spawn an interactive shooting star on click/tap
   const handleBannerClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -590,8 +553,21 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
             </a>
           </div>
 
+          {/* Don't show again preference */}
+          <div className="flex items-center justify-center gap-2 pt-1 pb-1">
+            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 font-bold cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={Boolean(dontShowAgain)}
+                onChange={(e) => onToggleDontShowAgain && onToggleDontShowAgain(e.target.checked)}
+                className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+              />
+              <span>تذكر خياري وعدم إظهار هذه النافذة تلقائياً عند فتح الموقع</span>
+            </label>
+          </div>
+
           {/* Discrete Skip Link */}
-          <div className="mt-3.5 text-center">
+          <div className="mt-2 text-center">
             <button
               type="button"
               onClick={handleCloseModal}

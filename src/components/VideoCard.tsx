@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Heart, Clock, Sparkles, ShieldCheck } from 'lucide-react';
+import { Play, Heart, Clock, Sparkles, Smile } from 'lucide-react';
 import { VideoStory } from '../types';
 
 interface VideoCardProps {
@@ -35,6 +35,9 @@ export const VideoCard: React.FC<VideoCardProps> = ({
       <div className="relative aspect-video w-full overflow-hidden bg-slate-950">
         <img
           src={`https://img.youtube.com/vi/${video.id}/hqdefault.jpg`}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`;
+          }}
           alt={video.cleanTitle}
           loading="lazy"
           decoding="async"
@@ -50,13 +53,13 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           <span>{video.duration}</span>
         </div>
 
-        {/* 100% Safe Badge */}
+        {/* Responsible Child Content Badge */}
         <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-black bg-emerald-600/90 text-white backdrop-blur-xs shadow-xs">
-          <ShieldCheck className="w-3 h-3" />
-          <span>آمن 100%</span>
+          <Smile className="w-3 h-3" />
+          <span>محتوى عائلي هادف</span>
         </div>
 
-        {/* Favorite Heart Button with comfortable 44px touch target on mobile */}
+        {/* Favorite Heart Button */}
         <button
           type="button"
           onClick={(e) => {
@@ -64,9 +67,9 @@ export const VideoCard: React.FC<VideoCardProps> = ({
             onSoundTrigger();
             onToggleFavorite(video.id);
           }}
-          className={`absolute top-1.5 left-1.5 w-11 h-11 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-75 shadow-md ${
+          className={`absolute top-1.5 left-1.5 w-11 h-11 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-75 shadow-md cursor-pointer ${
             isFavorite
-              ? 'bg-rose-500 text-white shadow-rose-500/40'
+              ? 'bg-rose-500 text-white shadow-rose-500/40 scale-105'
               : 'bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:text-rose-500 hover:scale-105'
           }`}
           title={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
@@ -75,8 +78,8 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           <Heart className={`w-4 h-4 ${isFavorite ? 'fill-white text-white' : ''}`} />
         </button>
 
-        {/* Central Play Badge */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+        {/* Central Play Badge on Hover */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xl transform transition-transform group-hover:scale-110 ring-4 ring-white/50">
             <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white ml-1" />
           </div>
@@ -104,9 +107,11 @@ export const VideoCard: React.FC<VideoCardProps> = ({
 
         {/* Card Footer Button */}
         <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] sm:text-xs">
-          <span className="text-slate-400 font-medium">{video.viewsApprox} مشاهدة</span>
+          <span className="text-slate-400 font-medium">
+            {video.viewsApprox && video.viewsApprox !== '0' ? `${video.viewsApprox} مشاهدة` : 'حلقة حديثة'}
+          </span>
           <span className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 font-black group-hover:translate-x-[-2px] transition-transform">
-            <span>تشغيل</span>
+            <span>تشغيل الحكاية</span>
             <span>←</span>
           </span>
         </div>

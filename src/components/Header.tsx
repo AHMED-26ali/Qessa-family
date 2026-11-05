@@ -20,6 +20,8 @@ interface HeaderProps {
   onSelectVideo?: (video: VideoStory) => void;
   onSearchSubmit?: () => void;
   onOpenWelcome?: () => void;
+  onOpenPrivacy?: () => void;
+  onOpenGames?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -38,6 +40,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectVideo,
   onSearchSubmit,
   onOpenWelcome,
+  onOpenPrivacy,
+  onOpenGames,
 }) => {
   const mobileInputRef = useRef<HTMLInputElement>(null);
   const desktopSearchRef = useRef<HTMLDivElement>(null);
@@ -157,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </h1>
                 <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  محتوى آمن 100%
+                  محتوى عائلي هادف
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
@@ -301,6 +305,41 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Interactive Controls */}
           <div className="flex items-center gap-1 sm:gap-2">
+
+            {/* Games Hub Quick Nav Button */}
+            {onOpenGames && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSoundTrigger();
+                  onOpenGames();
+                }}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-black bg-gradient-to-r from-amber-400 to-rose-400 hover:from-amber-500 hover:to-rose-500 text-slate-950 shadow-xs hover:shadow-md transition active:scale-95 cursor-pointer min-h-[40px]"
+                title="الانتقال إلى عالم الألعاب"
+              >
+                <span>🎮</span>
+                <span>عالم الألعاب</span>
+              </button>
+            )}
+
+            {/* Favorites Button with real dynamic counter */}
+            <button
+              type="button"
+              onClick={() => {
+                onSoundTrigger();
+                onOpenFavorites();
+              }}
+              className="relative p-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-rose-500 hover:border-rose-300 transition active:scale-90 min-w-[40px] min-h-[40px] flex items-center justify-center cursor-pointer shadow-2xs"
+              title="عرض الحكايات المفضلة"
+              aria-label="المفضلة"
+            >
+              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${favoritesCount > 0 ? 'fill-rose-500 text-rose-500' : ''}`} />
+              {favoritesCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center shadow-md animate-twinkle">
+                  {favoritesCount}
+                </span>
+              )}
+            </button>
             
             {/* Sound Toggle (Available on all devices) */}
             <button
