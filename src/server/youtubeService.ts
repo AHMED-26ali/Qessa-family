@@ -1,20 +1,23 @@
-import { VideoStory, StoryCategory } from '../types';
-import { INITIAL_VIDEOS } from '../data/videos';
+
+import type { VideoStory, StoryCategory } from '../types.js';
+import { INITIAL_VIDEOS } from '../data/videos.js';
 
 try {
   process.loadEnvFile?.();
 } catch {}
 
 export const OFFICIAL_CHANNEL_HANDLE = '@Qessa-family';
+
 const DEFAULT_CHANNEL_ID = 'UChe5CsFfnSS0b6pWN1x3q0w';
 const configuredChannelId = process.env.YOUTUBE_CHANNEL_ID?.trim();
 
-// Read the Vercel Config variable; fall back safely to this channel's known ID.
 export const OFFICIAL_CHANNEL_ID =
   configuredChannelId && /^UC[A-Za-z0-9_-]{22}$/.test(configuredChannelId)
     ? configuredChannelId
     : DEFAULT_CHANNEL_ID;
-export const OFFICIAL_UPLOADS_PLAYLIST_ID = `UU${OFFICIAL_CHANNEL_ID.slice(2)}`;
+
+export const OFFICIAL_UPLOADS_PLAYLIST_ID =
+  `UU${OFFICIAL_CHANNEL_ID.slice(2)}`;
 
 interface CacheEntry {
   videos: VideoStory[];
@@ -22,16 +25,13 @@ interface CacheEntry {
   source: 'api' | 'scraper' | 'fallback';
 }
 
-// In-memory cache for serverless / express runtime
 let memoryCache: CacheEntry | null = null;
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache
-let lastManualRefreshTime = 0;
-const REFRESH_COOLDOWN_MS = 25 * 1000; // 25 seconds anti-spam cooldown
 
-/**
- * Curated metadata dictionary for channel videos to ensure rich child-friendly titles,
- * moral lessons, age recommendations, and accurate categories.
- */
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const REFRESH_COOLDOWN_MS = 25 * 1000;
+
+let lastManualRefreshTime = 0;
+
 const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
   opSJHrJX3mc: {
     cleanTitle: 'الثعلب مكرون وكذبة التفاحة الذهبية',
@@ -39,7 +39,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'حيوانات الغابة',
     ageRecommendation: '3+',
     moralLesson: 'الصدق والأمانة يجلبان محبة الأصدقاء، والكذب يوقع صاحبه في المتاعب',
-    isFeatured: true,
   },
   S5h4O4sRkNA: {
     cleanTitle: 'قصة الكلب بولت والقوى الخارقة',
@@ -47,7 +46,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'حيوانات الغابة',
     ageRecommendation: '3+',
     moralLesson: 'الشجاعة والوفاء للأصدقاء أعظم من أي قوة خارقة',
-    isFeatured: true,
   },
   zKilkVjn7Ac: {
     cleanTitle: 'عائلة روبنسون والسفر عبر الزمن',
@@ -55,7 +53,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'خيال وفضاء ومرح',
     ageRecommendation: '5+',
     moralLesson: 'الاستمرار في المحاولة وعدم الاستسلام أمام الفشل',
-    isFeatured: true,
   },
   QIRsBZCPd9A: {
     cleanTitle: 'رايا وآخر تنين الأسطوري',
@@ -63,7 +60,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'مغامرات وأساطير',
     ageRecommendation: '5+',
     moralLesson: 'الثقة بالآخرين والتسامح هما سر السلام والمحبة',
-    isFeatured: true,
   },
   '9DrJ_7Ddios': {
     cleanTitle: 'فأر المدينة وفأر الريف',
@@ -85,7 +81,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'مغامرات وأساطير',
     ageRecommendation: '5+',
     moralLesson: 'اليقظة وحسن التصرف وسرعة البديهة في مواجهة المفاجآت',
-    isFeatured: true,
   },
   c65YTzRJocc: {
     cleanTitle: 'الطائر الناري والريشة الذهبية',
@@ -107,7 +102,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'حيوانات الغابة',
     ageRecommendation: '3+',
     moralLesson: 'المثابرة والعمل الجاد يهزمان الغرور والكسل دائماً',
-    isFeatured: true,
   },
   '6tcXaaGfyPU': {
     cleanTitle: 'حورية البحر الصغيرة أريال',
@@ -115,7 +109,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'قصص الأميرات',
     ageRecommendation: '3+',
     moralLesson: 'أهمية الحوار مع الوالدين واحترام التنوع بين العوالم',
-    isFeatured: true,
   },
   '9cU6aHwBJYQ': {
     cleanTitle: 'سندريلا وضيوف القصر المرحين',
@@ -214,7 +207,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'قصص الأميرات',
     ageRecommendation: '3+',
     moralLesson: 'التعاون والمشاركة ونظافة البيت وحسن الجيرة',
-    isFeatured: true,
   },
   Z9zdniPaRHQ: {
     cleanTitle: 'الأميرة النائمة وأزهار الغابة',
@@ -229,7 +221,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'قصص الأميرات',
     ageRecommendation: '3+',
     moralLesson: 'اتباع الأحلام بصدق وشجاعة والتغلب على الخوف',
-    isFeatured: true,
   },
   oREWJ9ZCCP4: {
     cleanTitle: 'سندريلا والحذاء الزجاجي السحري',
@@ -237,7 +228,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'قصص الأميرات',
     ageRecommendation: '3+',
     moralLesson: 'المعاملة الحسنة والتواضع يرفعان شأن الإنسان',
-    isFeatured: true,
   },
   '5zZAbSgW6t4': {
     cleanTitle: 'كوكب الحلوى الفضائي العجيب',
@@ -245,7 +235,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
     categoryNameAr: 'خيال وفضاء ومرح',
     ageRecommendation: '3+',
     moralLesson: 'الاعتدال في تناول السكريات والاهتمام بصحة الأسنان والجسم',
-    isFeatured: true,
   },
   '9oSzW6VgnBU': {
     cleanTitle: 'شخصيات فنانيس والفانوس العجيب',
@@ -256,9 +245,6 @@ const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
   },
 };
 
-/**
- * Clean raw YouTube title to kid-friendly short title
- */
 function cleanVideoTitle(rawTitle: string): string {
   let cleaned = rawTitle
     .replace(/حواديت قبل النوم/gi, '')
@@ -285,12 +271,14 @@ function cleanVideoTitle(rawTitle: string): string {
     .replace(/\|/g, ' - ')
     .trim();
 
-  // Remove leading/trailing dashes and spaces
   cleaned = cleaned.replace(/^[\s\-–—]+|[\s\-–—]+$/g, '').trim();
 
-  // If title was split into segments, pick the most descriptive primary segment
   if (cleaned.includes(' - ')) {
-    const parts = cleaned.split(' - ').map((p) => p.trim()).filter(Boolean);
+    const parts = cleaned
+      .split(' - ')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
     if (parts.length > 0) {
       cleaned = parts[0];
     }
@@ -299,11 +287,14 @@ function cleanVideoTitle(rawTitle: string): string {
   return cleaned || rawTitle;
 }
 
-/**
- * Categorize video based on keywords if not manually curated
- */
-function deduceCategory(title: string): { category: StoryCategory; categoryNameAr: string } {
+function deduceCategory(
+  title: string
+): {
+  category: StoryCategory;
+  categoryNameAr: string;
+} {
   const lower = title.toLowerCase();
+
   if (
     lower.includes('أمير') ||
     lower.includes('امير') ||
@@ -315,8 +306,12 @@ function deduceCategory(title: string): { category: StoryCategory; categoryNameA
     lower.includes('فاسيليسا') ||
     lower.includes('الجميلة والوحش')
   ) {
-    return { category: 'princesses', categoryNameAr: 'قصص الأميرات' };
+    return {
+      category: 'princesses',
+      categoryNameAr: 'قصص الأميرات',
+    };
   }
+
   if (
     lower.includes('حيوان') ||
     lower.includes('غابة') ||
@@ -330,8 +325,12 @@ function deduceCategory(title: string): { category: StoryCategory; categoryNameA
     lower.includes('خراف') ||
     lower.includes('دب')
   ) {
-    return { category: 'animals', categoryNameAr: 'حيوانات الغابة' };
+    return {
+      category: 'animals',
+      categoryNameAr: 'حيوانات الغابة',
+    };
   }
+
   if (
     lower.includes('نوم') ||
     lower.includes('سرير') ||
@@ -340,8 +339,12 @@ function deduceCategory(title: string): { category: StoryCategory; categoryNameA
     lower.includes('صدق') ||
     lower.includes('أمانة')
   ) {
-    return { category: 'bedtime', categoryNameAr: 'حواديت قبل النوم' };
+    return {
+      category: 'bedtime',
+      categoryNameAr: 'حواديت قبل النوم',
+    };
   }
+
   if (
     lower.includes('فضاء') ||
     lower.includes('حلوى') ||
@@ -351,8 +354,12 @@ function deduceCategory(title: string): { category: StoryCategory; categoryNameA
     lower.includes('عجيب') ||
     lower.includes('روبنسون')
   ) {
-    return { category: 'fantasy', categoryNameAr: 'خيال وفضاء ومرح' };
+    return {
+      category: 'fantasy',
+      categoryNameAr: 'خيال وفضاء ومرح',
+    };
   }
+
   if (
     lower.includes('سندباد') ||
     lower.includes('مغامرة') ||
@@ -362,82 +369,125 @@ function deduceCategory(title: string): { category: StoryCategory; categoryNameA
     lower.includes('بحر') ||
     lower.includes('موموتارو')
   ) {
-    return { category: 'adventure', categoryNameAr: 'مغامرات وأساطير' };
+    return {
+      category: 'adventure',
+      categoryNameAr: 'مغامرات وأساطير',
+    };
   }
-  return { category: 'all', categoryNameAr: 'كل الحكايات' };
+
+  return {
+    category: 'all',
+    categoryNameAr: 'كل الحكايات',
+  };
 }
 
-/**
- * Format ISO 8601 duration (e.g. PT14M20S -> 14:20)
- */
 function formatISODuration(iso: string): string {
-  const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  const match = iso.match(
+    /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/
+  );
+
   if (!match) return '15:00';
+
   const hours = parseInt(match[1] || '0', 10);
   const minutes = parseInt(match[2] || '0', 10);
   const seconds = parseInt(match[3] || '0', 10);
 
-  const pad = (n: number) => n.toString().padStart(2, '0');
+  const pad = (n: number) =>
+    n.toString().padStart(2, '0');
+
   if (hours > 0) {
     return `${hours}:${pad(minutes)}:${pad(seconds)}`;
   }
+
   return `${minutes}:${pad(seconds)}`;
 }
 
-/**
- * Format view count in friendly Arabic
- */
-function formatViewsArabic(views: number | string): string {
+function formatViewsArabic(
+  views: number | string
+): string {
   if (typeof views === 'string') {
-    if (views.includes('مشاهدة') || views.includes('ألف') || views.includes('مليون')) return views;
-    const parsed = parseInt(views.replace(/[^0-9]/g, ''), 10);
+    if (
+      views.includes('مشاهدة') ||
+      views.includes('ألف') ||
+      views.includes('مليون')
+    ) {
+      return views;
+    }
+
+    const parsed = parseInt(
+      views.replace(/[^0-9]/g, ''),
+      10
+    );
+
     if (isNaN(parsed)) return 'جديد';
+
     views = parsed;
   }
+
   if (views >= 1000000) {
-    const m = (views / 1000000).toFixed(1).replace('.0', '');
+    const m = (views / 1000000)
+      .toFixed(1)
+      .replace('.0', '');
+
     return `${m} مليون`;
   }
+
   if (views >= 1000) {
-    const k = (views / 1000).toFixed(1).replace('.0', '');
+    const k = (views / 1000)
+      .toFixed(1)
+      .replace('.0', '');
+
     return `${k} ألف`;
   }
+
   return `${views}`;
 }
 
 /**
- * Keep one copy of each story. Only the newest story gets the featured flag;
- * older featured stories remain in the list, but not on the big screen.
+ * Remove duplicate videos.
+ * Only the first video is the newest featured story.
  */
-function normalizeVideos(videos: VideoStory[], markNewest = true): VideoStory[] {
+function normalizeVideos(
+  videos: VideoStory[],
+  markNewest = true
+): VideoStory[] {
   const seen = new Set<string>();
+
   const unique = videos.filter((video) => {
-    if (!video.id || seen.has(video.id)) return false;
+    if (!video.id || seen.has(video.id)) {
+      return false;
+    }
+
     seen.add(video.id);
     return true;
   });
+
   return unique.map((video, index) => ({
     ...video,
     isFeatured: index === 0,
-    publishedDate: index === 0 && markNewest
-      ? 'أحدث حلقة تم نشرها 🚀'
-      : video.publishedDate === 'أحدث حلقة تم نشرها 🚀'
-        ? 'حلقة سابقة'
-        : video.publishedDate,
+    publishedDate:
+      index === 0 && markNewest
+        ? 'أحدث حلقة تم نشرها 🚀'
+        : video.publishedDate === 'أحدث حلقة تم نشرها 🚀'
+          ? 'حلقة سابقة'
+          : video.publishedDate,
   }));
 }
 
 /**
- * Fetch channel videos via official YouTube Data API v3
+ * Fetch every page of the channel's uploads playlist.
+ * YouTube API returns at most 50 videos per page.
  */
-async function fetchViaYouTubeDataApi(apiKey: string): Promise<VideoStory[] | null> {
+async function fetchViaYouTubeDataApi(
+  apiKey: string
+): Promise<VideoStory[] | null> {
   try {
     const playlistItems: any[] = [];
+
     let nextPageToken: string | undefined;
+
     const seenTokens = new Set<string>();
 
-    // YouTube returns up to 50 uploads per page. Read all pages instead of
-    // silently losing older stories when the channel passes 50 uploads.
     do {
       const params = new URLSearchParams({
         part: 'snippet,contentDetails',
@@ -445,145 +495,294 @@ async function fetchViaYouTubeDataApi(apiKey: string): Promise<VideoStory[] | nu
         maxResults: '50',
         key: apiKey,
       });
-      if (nextPageToken) params.set('pageToken', nextPageToken);
 
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`, {
-        signal: AbortSignal.timeout(12000),
-      });
+      if (nextPageToken) {
+        params.set('pageToken', nextPageToken);
+      }
+
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?${params}`,
+        {
+          signal: AbortSignal.timeout(12000),
+        }
+      );
+
       if (!res.ok) {
-        console.warn(`[YouTube API] playlistItems HTTP ${res.status}`);
+        console.warn(
+          `[YouTube API] playlistItems HTTP ${res.status}`
+        );
+
         return null;
       }
-      const data = (await res.json()) as { items?: any[]; nextPageToken?: string };
+
+      const data = (await res.json()) as {
+        items?: any[];
+        nextPageToken?: string;
+      };
+
       playlistItems.push(...(data.items || []));
+
       nextPageToken = data.nextPageToken;
+
       if (nextPageToken) {
-        if (seenTokens.has(nextPageToken)) break;
+        if (seenTokens.has(nextPageToken)) {
+          break;
+        }
+
         seenTokens.add(nextPageToken);
       }
     } while (nextPageToken);
 
-    const videoIds = [...new Set(
-      playlistItems
-        .map((item) => item.contentDetails?.videoId || item.snippet?.resourceId?.videoId)
-        .filter((id): id is string => typeof id === 'string' && /^[\w-]{11}$/.test(id))
-    )];
-    if (!videoIds.length) return null;
+    const videoIds = [
+      ...new Set<string>(
+        playlistItems
+          .map(
+            (item) =>
+              item.contentDetails?.videoId ||
+              item.snippet?.resourceId?.videoId
+          )
+          .filter(
+            (id): id is string =>
+              typeof id === 'string' &&
+              /^[A-Za-z0-9_-]{11}$/.test(id)
+          )
+      ),
+    ];
 
-    // videos.list accepts at most 50 IDs per request.
+    if (videoIds.length === 0) {
+      return null;
+    }
+
     const videoDetailsMap = new Map<string, any>();
-    for (let offset = 0; offset < videoIds.length; offset += 50) {
+
+    // Fetch details in batches of 50.
+    for (
+      let offset = 0;
+      offset < videoIds.length;
+      offset += 50
+    ) {
       const ids = videoIds.slice(offset, offset + 50);
+
       const params = new URLSearchParams({
         part: 'snippet,contentDetails,statistics,status',
         id: ids.join(','),
         key: apiKey,
       });
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`, {
-        signal: AbortSignal.timeout(12000),
-      });
+
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?${params}`,
+        {
+          signal: AbortSignal.timeout(12000),
+        }
+      );
+
       if (!res.ok) {
-        console.warn(`[YouTube API] videos HTTP ${res.status}`);
+        console.warn(
+          `[YouTube API] videos HTTP ${res.status}`
+        );
+
         return null;
       }
-      const data = (await res.json()) as { items?: any[] };
+
+      const data = (await res.json()) as {
+        items?: any[];
+      };
+
       for (const video of data.items || []) {
-        if (video.id) videoDetailsMap.set(video.id, video);
+        if (video.id) {
+          videoDetailsMap.set(video.id, video);
+        }
       }
     }
 
     const result: VideoStory[] = [];
+
+    // Preserve uploads-playlist order: newest first.
     for (const vidId of videoIds) {
       const detail = videoDetailsMap.get(vidId);
+
       if (!detail) continue;
 
       const status = detail.status || {};
-      // Only show public, embeddable videos belonging to our channel.
-      if (status.privacyStatus !== 'public' || status.embeddable === false) continue;
-      if (detail.snippet?.channelId && detail.snippet.channelId !== OFFICIAL_CHANNEL_ID) continue;
+
+      if (
+        status.privacyStatus !== 'public' ||
+        status.embeddable === false
+      ) {
+        continue;
+      }
+
+      if (
+        detail.snippet?.channelId &&
+        detail.snippet.channelId !== OFFICIAL_CHANNEL_ID
+      ) {
+        continue;
+      }
 
       const snippet = detail.snippet || {};
-      const description: string = snippet.description || '';
-      const rawTitle: string = snippet.title || 'حلقة جديدة من قصة العائلة';
+
+      const description: string =
+        snippet.description || '';
+
+      const rawTitle: string =
+        snippet.title || 'حلقة جديدة من قصة العائلة';
+
+      const publishedAt: string =
+        snippet.publishedAt || '';
+
       const curated = CURATED_METADATA[vidId] || {};
+
       const deduced = deduceCategory(rawTitle);
-      const publishedAt: string = snippet.publishedAt || '';
 
       result.push({
         id: vidId,
         title: rawTitle,
-        cleanTitle: curated.cleanTitle || cleanVideoTitle(rawTitle),
-        description: curated.description ||
-          description.slice(0, 180) + (description.length > 180 ? '...' : ''),
-        category: curated.category || deduced.category,
-        categoryNameAr: curated.categoryNameAr || deduced.categoryNameAr,
-        duration: curated.duration || formatISODuration(detail.contentDetails?.duration || ''),
-        viewsApprox: formatViewsArabic(detail.statistics?.viewCount || '0'),
+        cleanTitle:
+          curated.cleanTitle ||
+          cleanVideoTitle(rawTitle),
+
+        description:
+          curated.description ||
+          description.slice(0, 180) +
+            (description.length > 180 ? '...' : ''),
+
+        category:
+          curated.category ||
+          deduced.category,
+
+        categoryNameAr:
+          curated.categoryNameAr ||
+          deduced.categoryNameAr,
+
+        duration:
+          curated.duration ||
+          formatISODuration(
+            detail.contentDetails?.duration || ''
+          ),
+
+        viewsApprox: formatViewsArabic(
+          detail.statistics?.viewCount || '0'
+        ),
+
         isFeatured: false,
-        ageRecommendation: curated.ageRecommendation || '3+',
-        moralLesson: curated.moralLesson ||
+
+        ageRecommendation:
+          curated.ageRecommendation || '3+',
+
+        moralLesson:
+          curated.moralLesson ||
           'القيم النبيلة والتعاون وحسن الأخلاق في عالم الحكايات',
+
         publishedDate: publishedAt
-          ? new Date(publishedAt).toLocaleDateString('ar-EG')
+          ? new Date(publishedAt).toLocaleDateString(
+              'ar-EG'
+            )
           : 'حلقة من قصة العائلة',
       });
     }
-    return result.length ? normalizeVideos(result, true) : null;
-  } catch (err) {
-    console.warn('[YouTube API] Error:', err);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return normalizeVideos(result, true);
+  } catch (error) {
+    console.warn(
+      '[YouTube API] Error fetching videos:',
+      error
+    );
+
     return null;
   }
 }
 
 /**
- * Resilient server-side YouTube Channel Page Parser
- * Reads the official YouTube Channel Page HTML and extracts ytInitialData.
- * Best-effort fallback only: YouTube can change its page format,
- * so the official Data API is the source of truth.
+ * Backup method:
+ * Read videos from the official YouTube channel page.
  */
-async function fetchViaChannelScraper(): Promise<VideoStory[] | null> {
+async function fetchViaChannelScraper(): Promise<
+  VideoStory[] | null
+> {
   try {
-    const url = `https://www.youtube.com/channel/${OFFICIAL_CHANNEL_ID}/videos`;
+    const url =
+      `https://www.youtube.com/channel/${OFFICIAL_CHANNEL_ID}/videos`;
+
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'ar,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml',
+        Accept: 'text/html,application/xhtml+xml',
       },
+      signal: AbortSignal.timeout(12000),
     });
 
     if (!res.ok) {
-      console.warn(`[Channel Scraper] Failed to fetch channel page: ${res.status}`);
+      console.warn(
+        `[Channel Scraper] HTTP ${res.status}`
+      );
+
       return null;
     }
 
     const html = await res.text();
-    const match = html.match(/var ytInitialData = ({.*?});<\/script>/s) || html.match(/ytInitialData\s*=\s*({.+?});/);
+
+    const match =
+      html.match(
+        /var ytInitialData = ({.*?});<\/script>/s
+      ) ||
+      html.match(
+        /ytInitialData\s*=\s*({.+?});/
+      );
+
     if (!match) {
-      console.warn('[Channel Scraper] ytInitialData not found in HTML');
+      console.warn(
+        '[Channel Scraper] ytInitialData not found'
+      );
+
       return null;
     }
 
     const data = JSON.parse(match[1]);
-    const tabs = data?.contents?.twoColumnBrowseResultsRenderer?.tabs || [];
-    const videosTab = tabs.find(
-      (t: any) =>
-        t?.tabRenderer?.title === 'الفيديوهات' ||
-        t?.tabRenderer?.title === 'Videos' ||
-        t?.tabRenderer?.selected === true
-    ) || tabs[1] || tabs[0];
+
+    const tabs =
+      data?.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.tabs || [];
+
+    const videosTab =
+      tabs.find(
+        (t: any) =>
+          t?.tabRenderer?.title === 'الفيديوهات' ||
+          t?.tabRenderer?.title === 'Videos' ||
+          t?.tabRenderer?.selected === true
+      ) ||
+      tabs[1] ||
+      tabs[0];
 
     const contents =
-      videosTab?.tabRenderer?.content?.richGridRenderer?.contents ||
-      videosTab?.tabRenderer?.content?.sectionListRenderer?.contents ||
+      videosTab?.tabRenderer?.content
+        ?.richGridRenderer?.contents ||
+      videosTab?.tabRenderer?.content
+        ?.sectionListRenderer?.contents ||
       [];
 
     const stories: VideoStory[] = [];
 
-    for (let index = 0; index < contents.length; index++) {
+    for (
+      let index = 0;
+      index < contents.length;
+      index++
+    ) {
       const item = contents[index];
-      const lvm = item?.richItemRenderer?.content?.lockupViewModel;
-      const vr = item?.richItemRenderer?.content?.videoRenderer;
+
+      const lvm =
+        item?.richItemRenderer?.content
+          ?.lockupViewModel;
+
+      const vr =
+        item?.richItemRenderer?.content
+          ?.videoRenderer;
 
       let videoId = '';
       let rawTitle = '';
@@ -593,76 +792,151 @@ async function fetchViaChannelScraper(): Promise<VideoStory[] | null> {
 
       if (lvm) {
         videoId = lvm.contentId || '';
-        rawTitle = lvm.metadata?.lockupMetadataViewModel?.title?.content || '';
-        const rows = lvm.metadata?.lockupMetadataViewModel?.metadata?.contentMetadataViewModel?.metadataRows || [];
-        const parts = rows.flatMap((r: any) => r.metadataParts?.map((p: any) => p.text?.content)).filter(Boolean);
+
+        rawTitle =
+          lvm.metadata
+            ?.lockupMetadataViewModel
+            ?.title?.content || '';
+
+        const rows =
+          lvm.metadata
+            ?.lockupMetadataViewModel
+            ?.metadata
+            ?.contentMetadataViewModel
+            ?.metadataRows || [];
+
+        const parts = rows
+          .flatMap((r: any) =>
+            r.metadataParts?.map(
+              (p: any) => p.text?.content
+            ) || []
+          )
+          .filter(Boolean);
+
         if (parts.length > 0) {
           viewsText = parts[0] || 'جديد';
         }
+
         if (parts.length > 1) {
           publishedText = parts[1] || '';
         }
       } else if (vr) {
         videoId = vr.videoId || '';
-        rawTitle = vr.title?.runs?.[0]?.text || '';
-        viewsText = vr.viewCountText?.simpleText || 'جديد';
-        publishedText = vr.publishedTimeText?.simpleText || '';
-        durationText = vr.lengthText?.simpleText || '15:00';
+
+        rawTitle =
+          vr.title?.runs?.[0]?.text || '';
+
+        viewsText =
+          vr.viewCountText?.simpleText || 'جديد';
+
+        publishedText =
+          vr.publishedTimeText?.simpleText || '';
+
+        durationText =
+          vr.lengthText?.simpleText || '15:00';
       }
 
-      if (!videoId) continue;
+      if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
+        continue;
+      }
 
-      const curated = CURATED_METADATA[videoId] || {};
-      const fallbackInitial = INITIAL_VIDEOS.find((v) => v.id === videoId);
-      const deduced = deduceCategory(rawTitle);
+      const curated =
+        CURATED_METADATA[videoId] || {};
+
+      const fallbackInitial =
+        INITIAL_VIDEOS.find(
+          (v) => v.id === videoId
+        );
+
+      const deduced =
+        deduceCategory(rawTitle);
 
       stories.push({
         id: videoId,
-        title: rawTitle,
-        cleanTitle: curated.cleanTitle || fallbackInitial?.cleanTitle || cleanVideoTitle(rawTitle),
+        title:
+          rawTitle ||
+          fallbackInitial?.title ||
+          'حكاية من قصة العائلة',
+
+        cleanTitle:
+          curated.cleanTitle ||
+          fallbackInitial?.cleanTitle ||
+          cleanVideoTitle(rawTitle),
+
         description:
           curated.description ||
           fallbackInitial?.description ||
           `حكاية كرتونية ممتعة للأطفال من قناة قصة العائلة بعنوان: ${cleanVideoTitle(rawTitle)}.`,
-        category: curated.category || fallbackInitial?.category || deduced.category,
-        categoryNameAr: curated.categoryNameAr || fallbackInitial?.categoryNameAr || deduced.categoryNameAr,
-        duration: curated.duration || fallbackInitial?.duration || durationText,
-        viewsApprox: formatViewsArabic(viewsText),
+
+        category:
+          curated.category ||
+          fallbackInitial?.category ||
+          deduced.category,
+
+        categoryNameAr:
+          curated.categoryNameAr ||
+          fallbackInitial?.categoryNameAr ||
+          deduced.categoryNameAr,
+
+        duration:
+          curated.duration ||
+          fallbackInitial?.duration ||
+          durationText,
+
+        viewsApprox:
+          formatViewsArabic(viewsText),
+
         isFeatured: false,
-        ageRecommendation: curated.ageRecommendation || fallbackInitial?.ageRecommendation || '3+',
+
+        ageRecommendation:
+          curated.ageRecommendation ||
+          fallbackInitial?.ageRecommendation ||
+          '3+',
+
         moralLesson:
           curated.moralLesson ||
           fallbackInitial?.moralLesson ||
           'القيم الأخلاقية وحب الأصدقاء والتعاون الصادق',
-        publishedDate: publishedText || 'حلقة جديدة',
+
+        publishedDate:
+          publishedText || 'حلقة جديدة',
       });
     }
 
     if (stories.length > 0) {
-      // Merge any INITIAL_VIDEOS that might be further down or older so none are lost
-      const seen = new Set(stories.map((s) => s.id));
+      // Keep older saved stories when using
+      // the channel-page backup method.
+      const seen = new Set(
+        stories.map((s) => s.id)
+      );
+
       for (const initial of INITIAL_VIDEOS) {
         if (!seen.has(initial.id)) {
           seen.add(initial.id);
           stories.push(initial);
         }
       }
+
       return normalizeVideos(stories, true);
     }
 
     return null;
-  } catch (err) {
-    console.warn('[Channel Scraper] Error scraping channel page:', err);
+  } catch (error) {
+    console.warn(
+      '[Channel Scraper] Error:',
+      error
+    );
+
     return null;
   }
 }
 
 /**
- * Main service method to retrieve channel stories.
- * Checks cache, runs YouTube Data API v3 (if key provided),
- * falls back to server-side channel scraper, and finally to INITIAL_VIDEOS.
+ * Main method used by /api/videos and /api/refresh.
  */
-export async function getChannelVideos(forceRefresh = false): Promise<{
+export async function getChannelVideos(
+  forceRefresh = false
+): Promise<{
   videos: VideoStory[];
   source: 'api' | 'scraper' | 'fallback';
   lastSynced: string;
@@ -671,25 +945,39 @@ export async function getChannelVideos(forceRefresh = false): Promise<{
 }> {
   const now = Date.now();
 
-  // If forceRefresh requested, respect cooldown
-  if (forceRefresh && now - lastManualRefreshTime < REFRESH_COOLDOWN_MS) {
-    if (memoryCache) {
-      return {
-        videos: memoryCache.videos,
-        source: memoryCache.source,
-        lastSynced: new Date(memoryCache.timestamp).toISOString(),
-        isCached: true,
-        channelId: OFFICIAL_CHANNEL_ID,
-      };
-    }
-  }
-
-  // Return cache if valid and not forceRefresh
-  if (!forceRefresh && memoryCache && now - memoryCache.timestamp < (memoryCache.source === 'fallback' ? 60_000 : CACHE_TTL_MS)) {
+  // Manual refresh cooldown.
+  if (
+    forceRefresh &&
+    now - lastManualRefreshTime <
+      REFRESH_COOLDOWN_MS &&
+    memoryCache
+  ) {
     return {
       videos: memoryCache.videos,
       source: memoryCache.source,
-      lastSynced: new Date(memoryCache.timestamp).toISOString(),
+      lastSynced: new Date(
+        memoryCache.timestamp
+      ).toISOString(),
+      isCached: true,
+      channelId: OFFICIAL_CHANNEL_ID,
+    };
+  }
+
+  // Use valid cache on normal requests.
+  if (
+    !forceRefresh &&
+    memoryCache &&
+    now - memoryCache.timestamp <
+      (memoryCache.source === 'fallback'
+        ? 60_000
+        : CACHE_TTL_MS)
+  ) {
+    return {
+      videos: memoryCache.videos,
+      source: memoryCache.source,
+      lastSynced: new Date(
+        memoryCache.timestamp
+      ).toISOString(),
       isCached: true,
       channelId: OFFICIAL_CHANNEL_ID,
     };
@@ -699,83 +987,112 @@ export async function getChannelVideos(forceRefresh = false): Promise<{
     lastManualRefreshTime = now;
   }
 
-  // 1. Try YouTube Data API v3 if key available
-  try {
-    process.loadEnvFile?.();
-  } catch {}
-  const apiKey = process.env.YOUTUBE_API_KEY;
+  // Primary source: Official YouTube API.
+  const apiKey =
+    process.env.YOUTUBE_API_KEY?.trim();
+
   if (apiKey) {
-    const apiVideos = await fetchViaYouTubeDataApi(apiKey);
+    const apiVideos =
+      await fetchViaYouTubeDataApi(apiKey);
+
     if (apiVideos && apiVideos.length > 0) {
       const syncedAt = Date.now();
+
       memoryCache = {
         videos: apiVideos,
         timestamp: syncedAt,
         source: 'api',
       };
+
       return {
         videos: apiVideos,
         source: 'api',
-        lastSynced: new Date(syncedAt).toISOString(),
+        lastSynced:
+          new Date(syncedAt).toISOString(),
         isCached: false,
         channelId: OFFICIAL_CHANNEL_ID,
       };
     }
   }
 
-  // 2. If the official API is unavailable, try the channel page.
-  const scrapedVideos = await fetchViaChannelScraper();
-  if (scrapedVideos && scrapedVideos.length > 0) {
-    const updatedAt = Date.now();
+  // Backup source: YouTube channel page.
+  const scrapedVideos =
+    await fetchViaChannelScraper();
+
+  if (
+    scrapedVideos &&
+    scrapedVideos.length > 0
+  ) {
+    const syncedAt = Date.now();
+
     memoryCache = {
       videos: scrapedVideos,
-      timestamp: updatedAt,
+      timestamp: syncedAt,
       source: 'scraper',
     };
+
     return {
       videos: scrapedVideos,
       source: 'scraper',
-      lastSynced: new Date(updatedAt).toISOString(),
+      lastSynced:
+        new Date(syncedAt).toISOString(),
       isCached: false,
       channelId: OFFICIAL_CHANNEL_ID,
     };
   }
 
-  // 3. Keep last known videos when YouTube is temporarily unavailable.
-  // Never force an old hard-coded video to be the "newest" episode.
+  // Keep last successfully loaded videos
+  // when YouTube is temporarily unavailable.
   if (memoryCache) {
     return {
       videos: memoryCache.videos,
       source: memoryCache.source,
-      lastSynced: new Date(memoryCache.timestamp).toISOString(),
+      lastSynced: new Date(
+        memoryCache.timestamp
+      ).toISOString(),
       isCached: true,
       channelId: OFFICIAL_CHANNEL_ID,
     };
   }
 
-  const fallbackVideos = normalizeVideos([...INITIAL_VIDEOS], false);
+  // Final offline fallback.
+  // Do not hard-code any old episode as newest.
+  const fallbackVideos =
+    normalizeVideos(
+      [...INITIAL_VIDEOS],
+      false
+    );
+
+  const fallbackTime = Date.now();
+
   memoryCache = {
     videos: fallbackVideos,
-    timestamp: Date.now(),
+    timestamp: fallbackTime,
     source: 'fallback',
   };
+
   return {
     videos: fallbackVideos,
     source: 'fallback',
-    lastSynced: new Date(memoryCache.timestamp).toISOString(),
+    lastSynced:
+      new Date(fallbackTime).toISOString(),
     isCached: false,
     channelId: OFFICIAL_CHANNEL_ID,
   };
 }
 
 /**
- * Get single video by ID
+ * Find a video from the channel's list.
  */
-export async function getVideoById(videoId: string): Promise<VideoStory | null> {
-  const { videos } = await getChannelVideos(false);
-  const found = videos.find((v) => v.id === videoId);
-  if (found) return found;
+export async function getVideoById(
+  videoId: string
+): Promise<VideoStory | null> {
+  const { videos } =
+    await getChannelVideos(false);
 
-  // Only show videos verified against the channel's current list.
-  return null;
+  return (
+    videos.find(
+      (video) => video.id === videoId
+    ) || null
+  );
 }
