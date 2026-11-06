@@ -1,4 +1,5 @@
-export type StoryCategory = 
+
+export type StoryCategory =
   | 'all'
   | 'princesses'
   | 'animals'
@@ -8,9 +9,9 @@ export type StoryCategory =
   | 'favorites';
 
 export interface VideoStory {
-  id: string; // YouTube videoId
+  id: string;
   title: string;
-  cleanTitle: string; // Friendly short title for kids
+  cleanTitle: string;
   description: string;
   category: StoryCategory;
   categoryNameAr: string;
@@ -18,9 +19,9 @@ export interface VideoStory {
   viewsApprox: string;
   isFeatured?: boolean;
   ageRecommendation: '3+' | '5+' | '7+';
-  moralLesson?: string; // العبرة والقيمة الأخلاقية للحدوتة
+  moralLesson?: string;
   publishedDate?: string;
-  keywords?: string[]; // كلمات مفتاحية مخصصة
+  keywords?: string[];
 }
 
 export interface AppNotification {
