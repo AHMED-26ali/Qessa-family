@@ -6,8 +6,15 @@ try {
 } catch {}
 
 export const OFFICIAL_CHANNEL_HANDLE = '@Qessa-family';
-export const OFFICIAL_CHANNEL_ID = 'UChe5CsFfnSS0b6pWN1x3q0w';
-export const OFFICIAL_UPLOADS_PLAYLIST_ID = 'UUhe5CsFfnSS0b6pWN1x3q0w';
+const DEFAULT_CHANNEL_ID = 'UChe5CsFfnSS0b6pWN1x3q0w';
+const configuredChannelId = process.env.YOUTUBE_CHANNEL_ID?.trim();
+
+// Read the Vercel Config variable; fall back safely to this channel's known ID.
+export const OFFICIAL_CHANNEL_ID =
+  configuredChannelId && /^UC[A-Za-z0-9_-]{22}$/.test(configuredChannelId)
+    ? configuredChannelId
+    : DEFAULT_CHANNEL_ID;
+export const OFFICIAL_UPLOADS_PLAYLIST_ID = `UU${OFFICIAL_CHANNEL_ID.slice(2)}`;
 
 interface CacheEntry {
   videos: VideoStory[];
@@ -399,86 +406,131 @@ function formatViewsArabic(views: number | string): string {
 }
 
 /**
+ * Keep one copy of each story. Only the newest story gets the featured flag;
+ * older featured stories remain in the list, but not on the big screen.
+ */
+function normalizeVideos(videos: VideoStory[], markNewest = true): VideoStory[] {
+  const seen = new Set<string>();
+  const unique = videos.filter((video) => {
+    if (!video.id || seen.has(video.id)) return false;
+    seen.add(video.id);
+    return true;
+  });
+  return unique.map((video, index) => ({
+    ...video,
+    isFeatured: index === 0,
+    publishedDate: index === 0 && markNewest
+      ? 'أحدث حلقة تم نشرها 🚀'
+      : video.publishedDate === 'أحدث حلقة تم نشرها 🚀'
+        ? 'حلقة سابقة'
+        : video.publishedDate,
+  }));
+}
+
+/**
  * Fetch channel videos via official YouTube Data API v3
  */
 async function fetchViaYouTubeDataApi(apiKey: string): Promise<VideoStory[] | null> {
   try {
-    // 1. Get uploads playlist ID for the channel
-    const playlistId = OFFICIAL_UPLOADS_PLAYLIST_ID;
+    const playlistItems: any[] = [];
+    let nextPageToken: string | undefined;
+    const seenTokens = new Set<string>();
 
-    // 2. Fetch playlist items (up to 50 items)
-    const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${playlistId}&maxResults=50&key=${apiKey}`;
-    const res = await fetch(playlistUrl);
-    if (!res.ok) {
-      console.warn(`[YouTube API] Playlist items error: ${res.status}`);
-      return null;
-    }
-    const data = await res.json();
-    const items = data.items || [];
-    if (items.length === 0) return null;
+    // YouTube returns up to 50 uploads per page. Read all pages instead of
+    // silently losing older stories when the channel passes 50 uploads.
+    do {
+      const params = new URLSearchParams({
+        part: 'snippet,contentDetails',
+        playlistId: OFFICIAL_UPLOADS_PLAYLIST_ID,
+        maxResults: '50',
+        key: apiKey,
+      });
+      if (nextPageToken) params.set('pageToken', nextPageToken);
 
-    const videoIds = items
-      .map((item: any) => item.contentDetails?.videoId)
-      .filter((id: any): id is string => Boolean(id));
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`, {
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!res.ok) {
+        console.warn(`[YouTube API] playlistItems HTTP ${res.status}`);
+        return null;
+      }
+      const data = (await res.json()) as { items?: any[]; nextPageToken?: string };
+      playlistItems.push(...(data.items || []));
+      nextPageToken = data.nextPageToken;
+      if (nextPageToken) {
+        if (seenTokens.has(nextPageToken)) break;
+        seenTokens.add(nextPageToken);
+      }
+    } while (nextPageToken);
 
-    // 3. Batch fetch video details (snippet, contentDetails, statistics, status)
-    const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics,status&id=${videoIds.join(',')}&key=${apiKey}`;
-    const detRes = await fetch(detailsUrl);
-    if (!detRes.ok) {
-      console.warn(`[YouTube API] Video details error: ${detRes.status}`);
-      return null;
-    }
-    const detData = await detRes.json();
+    const videoIds = [...new Set(
+      playlistItems
+        .map((item) => item.contentDetails?.videoId || item.snippet?.resourceId?.videoId)
+        .filter((id): id is string => typeof id === 'string' && /^[\w-]{11}$/.test(id))
+    )];
+    if (!videoIds.length) return null;
+
+    // videos.list accepts at most 50 IDs per request.
     const videoDetailsMap = new Map<string, any>();
-    for (const v of detData.items || []) {
-      videoDetailsMap.set(v.id, v);
+    for (let offset = 0; offset < videoIds.length; offset += 50) {
+      const ids = videoIds.slice(offset, offset + 50);
+      const params = new URLSearchParams({
+        part: 'snippet,contentDetails,statistics,status',
+        id: ids.join(','),
+        key: apiKey,
+      });
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`, {
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!res.ok) {
+        console.warn(`[YouTube API] videos HTTP ${res.status}`);
+        return null;
+      }
+      const data = (await res.json()) as { items?: any[] };
+      for (const video of data.items || []) {
+        if (video.id) videoDetailsMap.set(video.id, video);
+      }
     }
 
     const result: VideoStory[] = [];
-
-    for (let index = 0; index < videoIds.length; index++) {
-      const vidId = videoIds[index];
+    for (const vidId of videoIds) {
       const detail = videoDetailsMap.get(vidId);
       if (!detail) continue;
 
-      // Filter out private or non-embeddable videos
       const status = detail.status || {};
-      if (status.privacyStatus === 'private' || status.embeddable === false) {
-        continue;
-      }
+      // Only show public, embeddable videos belonging to our channel.
+      if (status.privacyStatus !== 'public' || status.embeddable === false) continue;
+      if (detail.snippet?.channelId && detail.snippet.channelId !== OFFICIAL_CHANNEL_ID) continue;
 
       const snippet = detail.snippet || {};
-      const stats = detail.statistics || {};
-      const contentDetails = detail.contentDetails || {};
-
-      const rawTitle = snippet.title || 'حلقة جديدة من قصة العائلة';
-      const description = snippet.description || '';
-      const publishedAt = snippet.publishedAt || '';
-      const viewCount = stats.viewCount ? formatViewsArabic(stats.viewCount) : 'جديد';
-      const duration = contentDetails.duration ? formatISODuration(contentDetails.duration) : '15:00';
-
+      const description: string = snippet.description || '';
+      const rawTitle: string = snippet.title || 'حلقة جديدة من قصة العائلة';
       const curated = CURATED_METADATA[vidId] || {};
       const deduced = deduceCategory(rawTitle);
+      const publishedAt: string = snippet.publishedAt || '';
 
       result.push({
         id: vidId,
         title: rawTitle,
         cleanTitle: curated.cleanTitle || cleanVideoTitle(rawTitle),
-        description: curated.description || description.slice(0, 180) + (description.length > 180 ? '...' : ''),
+        description: curated.description ||
+          description.slice(0, 180) + (description.length > 180 ? '...' : ''),
         category: curated.category || deduced.category,
         categoryNameAr: curated.categoryNameAr || deduced.categoryNameAr,
-        duration: curated.duration || duration,
-        viewsApprox: viewCount,
-        isFeatured: index === 0 ? true : Boolean(curated.isFeatured),
+        duration: curated.duration || formatISODuration(detail.contentDetails?.duration || ''),
+        viewsApprox: formatViewsArabic(detail.statistics?.viewCount || '0'),
+        isFeatured: false,
         ageRecommendation: curated.ageRecommendation || '3+',
-        moralLesson: curated.moralLesson || 'القيم النبيلة والتعاون وحسن الأخلاق في عالم الحكايات',
-        publishedDate: index === 0 ? 'أحدث حلقة تم نشرها 🚀' : publishedAt ? new Date(publishedAt).toLocaleDateString('ar-EG') : 'حلقة مميزة',
+        moralLesson: curated.moralLesson ||
+          'القيم النبيلة والتعاون وحسن الأخلاق في عالم الحكايات',
+        publishedDate: publishedAt
+          ? new Date(publishedAt).toLocaleDateString('ar-EG')
+          : 'حلقة من قصة العائلة',
       });
     }
-
-    return result.length > 0 ? result : null;
+    return result.length ? normalizeVideos(result, true) : null;
   } catch (err) {
-    console.warn('[YouTube API] Error fetching with Data API:', err);
+    console.warn('[YouTube API] Error:', err);
     return null;
   }
 }
@@ -486,12 +538,12 @@ async function fetchViaYouTubeDataApi(apiKey: string): Promise<VideoStory[] | nu
 /**
  * Resilient server-side YouTube Channel Page Parser
  * Reads the official YouTube Channel Page HTML and extracts ytInitialData.
- * This guarantees that new uploads (e.g. opSJHrJX3mc) are immediately found
- * without CORS proxies or client-side restrictions.
+ * Best-effort fallback only: YouTube can change its page format,
+ * so the official Data API is the source of truth.
  */
 async function fetchViaChannelScraper(): Promise<VideoStory[] | null> {
   try {
-    const url = `https://www.youtube.com/${OFFICIAL_CHANNEL_HANDLE}/videos`;
+    const url = `https://www.youtube.com/channel/${OFFICIAL_CHANNEL_ID}/videos`;
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -576,13 +628,13 @@ async function fetchViaChannelScraper(): Promise<VideoStory[] | null> {
         categoryNameAr: curated.categoryNameAr || fallbackInitial?.categoryNameAr || deduced.categoryNameAr,
         duration: curated.duration || fallbackInitial?.duration || durationText,
         viewsApprox: formatViewsArabic(viewsText),
-        isFeatured: index === 0 ? true : Boolean(curated.isFeatured || fallbackInitial?.isFeatured),
+        isFeatured: false,
         ageRecommendation: curated.ageRecommendation || fallbackInitial?.ageRecommendation || '3+',
         moralLesson:
           curated.moralLesson ||
           fallbackInitial?.moralLesson ||
           'القيم الأخلاقية وحب الأصدقاء والتعاون الصادق',
-        publishedDate: index === 0 ? 'أحدث حلقة تم نشرها 🚀' : publishedText || 'حلقة جديدة',
+        publishedDate: publishedText || 'حلقة جديدة',
       });
     }
 
@@ -595,7 +647,7 @@ async function fetchViaChannelScraper(): Promise<VideoStory[] | null> {
           stories.push(initial);
         }
       }
-      return stories;
+      return normalizeVideos(stories, true);
     }
 
     return null;
@@ -633,7 +685,7 @@ export async function getChannelVideos(forceRefresh = false): Promise<{
   }
 
   // Return cache if valid and not forceRefresh
-  if (!forceRefresh && memoryCache && now - memoryCache.timestamp < CACHE_TTL_MS) {
+  if (!forceRefresh && memoryCache && now - memoryCache.timestamp < (memoryCache.source === 'fallback' ? 60_000 : CACHE_TTL_MS)) {
     return {
       videos: memoryCache.videos,
       source: memoryCache.source,
@@ -655,69 +707,62 @@ export async function getChannelVideos(forceRefresh = false): Promise<{
   if (apiKey) {
     const apiVideos = await fetchViaYouTubeDataApi(apiKey);
     if (apiVideos && apiVideos.length > 0) {
+      const syncedAt = Date.now();
       memoryCache = {
         videos: apiVideos,
-        timestamp: now,
+        timestamp: syncedAt,
         source: 'api',
       };
       return {
         videos: apiVideos,
         source: 'api',
-        lastSynced: new Date(now).toISOString(),
+        lastSynced: new Date(syncedAt).toISOString(),
         isCached: false,
         channelId: OFFICIAL_CHANNEL_ID,
       };
     }
   }
 
-  // 2. Try Server-Side Channel Scraper (Live and extracts opSJHrJX3mc directly)
+  // 2. If the official API is unavailable, try the channel page.
   const scrapedVideos = await fetchViaChannelScraper();
   if (scrapedVideos && scrapedVideos.length > 0) {
+    const updatedAt = Date.now();
     memoryCache = {
       videos: scrapedVideos,
-      timestamp: now,
+      timestamp: updatedAt,
       source: 'scraper',
     };
     return {
       videos: scrapedVideos,
       source: 'scraper',
-      lastSynced: new Date(now).toISOString(),
+      lastSynced: new Date(updatedAt).toISOString(),
       isCached: false,
       channelId: OFFICIAL_CHANNEL_ID,
     };
   }
 
-  // 3. Fallback to INITIAL_VIDEOS
-  // Ensure the newest episode opSJHrJX3mc is prepended if not in INITIAL_VIDEOS
-  let fallbackList = [...INITIAL_VIDEOS];
-  if (!fallbackList.some((v) => v.id === 'opSJHrJX3mc')) {
-    const newest: VideoStory = {
-      id: 'opSJHrJX3mc',
-      title: 'الثعلب مكرون وكذبة التفاحة | قصص أطفال عن الصدق والأمانة | حواديت حيوانات الغابة',
-      cleanTitle: 'الثعلب مكرون وكذبة التفاحة الذهبية',
-      description: 'حكاية شيقة للأطفال عن الثعلب مكرون الذي تعلم درساً مهماً في الصدق والأمانة وكيف أن قول الحقيقة ينجي دائماً.',
-      category: 'animals',
-      categoryNameAr: 'حيوانات الغابة',
-      duration: '14:30',
-      viewsApprox: 'جديد',
-      isFeatured: true,
-      ageRecommendation: '3+',
-      moralLesson: 'الصدق والأمانة يجلبان محبة الأصدقاء، والكذب يوقع صاحبه في المتاعب',
-      publishedDate: 'أحدث حلقة تم نشرها 🚀',
+  // 3. Keep last known videos when YouTube is temporarily unavailable.
+  // Never force an old hard-coded video to be the "newest" episode.
+  if (memoryCache) {
+    return {
+      videos: memoryCache.videos,
+      source: memoryCache.source,
+      lastSynced: new Date(memoryCache.timestamp).toISOString(),
+      isCached: true,
+      channelId: OFFICIAL_CHANNEL_ID,
     };
-    fallbackList = [newest, ...fallbackList];
   }
 
+  const fallbackVideos = normalizeVideos([...INITIAL_VIDEOS], false);
   memoryCache = {
-    videos: fallbackList,
-    timestamp: now,
+    videos: fallbackVideos,
+    timestamp: Date.now(),
     source: 'fallback',
   };
-
   return {
-    videos: fallbackList,
+    videos: fallbackVideos,
     source: 'fallback',
-    lastSynced: new Date(now).toISOString(),
+    lastSynced: new Date(memoryCache.timestamp).toISOString(),
     isCached: false,
     channelId: OFFICIAL_CHANNEL_ID,
   };
@@ -731,30 +776,6 @@ export async function getVideoById(videoId: string): Promise<VideoStory | null> 
   const found = videos.find((v) => v.id === videoId);
   if (found) return found;
 
-  // Try oEmbed lookup as a fallback
-  try {
-    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
-    const res = await fetch(oembedUrl);
-    if (res.ok) {
-      const data = await res.json();
-      const rawTitle = data.title || 'قصة من قصة العائلة';
-      const curated = CURATED_METADATA[videoId] || {};
-      const deduced = deduceCategory(rawTitle);
-      return {
-        id: videoId,
-        title: rawTitle,
-        cleanTitle: curated.cleanTitle || cleanVideoTitle(rawTitle),
-        description: curated.description || 'حلقة كرتونية ممتعة للأطفال من قناة قصة العائلة.',
-        category: curated.category || deduced.category,
-        categoryNameAr: curated.categoryNameAr || deduced.categoryNameAr,
-        duration: '15:00',
-        viewsApprox: 'جديد',
-        ageRecommendation: curated.ageRecommendation || '3+',
-        moralLesson: curated.moralLesson || 'القيم النبيلة والتعاون وحسن الأخلاق',
-        publishedDate: 'حلقة خاصة',
-      };
-    }
-  } catch {}
-
+  // Only show videos verified against the channel's current list.
   return null;
 }
