@@ -31,6 +31,8 @@ export const CATEGORIES_LIST: { id: VideoStory['category']; name: string; emoji:
   { id: 'favorites', name: 'حكاياتي المفضلة', emoji: '❤️', bgClass: 'bg-rose-100 dark:bg-rose-950/60', textClass: 'text-rose-800 dark:text-rose-300', borderClass: 'border-rose-300 dark:border-rose-700' },
 ];
 
+// Backup story metadata only. The live YouTube API determines the newest upload.
+// Keep all existing stories here so they remain available during outages.
 export const INITIAL_VIDEOS: VideoStory[] = [
   {
     id: 'opSJHrJX3mc',
@@ -44,7 +46,7 @@ export const INITIAL_VIDEOS: VideoStory[] = [
     isFeatured: true,
     ageRecommendation: '3+',
     moralLesson: 'الصدق والأمانة يجلبان محبة الأصدقاء، والكذب يوقع صاحبه في المتاعب',
-    publishedDate: 'أحدث حلقة تم نشرها 🚀'
+    publishedDate: 'حلقة من أرشيف القناة'
   },
   {
     id: 'S5h4O4sRkNA',
@@ -58,7 +60,7 @@ export const INITIAL_VIDEOS: VideoStory[] = [
     isFeatured: true,
     ageRecommendation: '3+',
     moralLesson: 'الشجاعة والوفاء للأصدقاء أعظم من أي قوة خارقة',
-    publishedDate: 'أحدث حلقة'
+    publishedDate: 'حلقة سابقة'
   },
   {
     id: 'zKilkVjn7Ac',
