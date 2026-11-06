@@ -1,4 +1,5 @@
-import { VideoStory } from '../types';
+
+import type { VideoStory } from '../types';
 import { INITIAL_VIDEOS } from '../data/videos';
 
 const OFFLINE_CACHE_KEY = 'qessa_api_videos_offline_v2';
@@ -6,140 +7,323 @@ const OFFLINE_CACHE_KEY = 'qessa_api_videos_offline_v2';
 export interface SyncStatus {
   state: 'idle' | 'loading' | 'success' | 'error';
   lastSynced?: string;
-  source?: 'api' | 'scraper' | 'fallback';
+  source?: 'api' | 'scraper' | 'fallback' | 'offline-cache';
   message?: string;
 }
 
+interface VideoFetchResult {
+  videos: VideoStory[];
+  source: string;
+  lastSynced: string;
+}
+
 /**
- * Load videos from server API with offline fallback
+ * Keep videos in the order supplied by the server.
+ * Remove duplicates and feature only the newest story.
  */
-export async function fetchVideosFromApi(
-  forceRefresh = false
-): Promise<{ videos: VideoStory[]; source: string; lastSynced: string }> {
-  try {
-    const url = forceRefresh ? '/api/videos?refresh=true' : '/api/videos';
-    const res = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && Array.isArray(data.videos) && data.videos.length > 0) {
-        // Save to offline storage as cache
-        try {
-          localStorage.setItem(OFFLINE_CACHE_KEY, JSON.stringify({
-            videos: data.videos,
-            timestamp: Date.now(),
-            source: data.source,
-          }));
-        } catch {}
-
-        return {
-          videos: data.videos,
-          source: data.source || 'server',
-          lastSynced: data.lastSynced || new Date().toISOString(),
-        };
-      }
-    }
-  } catch (err) {
-    console.warn('[ApiClient] Failed to fetch from server, checking local offline cache:', err);
+function normalizeVideos(input: unknown): VideoStory[] {
+  if (!Array.isArray(input)) {
+    return [];
   }
 
-  // Fallback to offline cached videos
-  try {
-    const cached = localStorage.getItem(OFFLINE_CACHE_KEY);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed.videos) && parsed.videos.length > 0) {
-        return {
-          videos: parsed.videos,
-          source: 'offline-cache',
-          lastSynced: new Date(parsed.timestamp).toISOString(),
-        };
+  const seen = new Set<string>();
+
+  return input
+    .filter((video): video is VideoStory => {
+      if (
+        !video ||
+        typeof video !== 'object' ||
+        typeof video.id !== 'string' ||
+        !video.id
+      ) {
+        return false;
       }
-    }
-  } catch {}
 
-  // Final fallback to initial videos (with newest prepended)
-  let fallback = [...INITIAL_VIDEOS];
-  if (!fallback.some((v) => v.id === 'opSJHrJX3mc')) {
-    fallback = [
-      {
-        id: 'opSJHrJX3mc',
-        title: 'الثعلب مكرون وكذبة التفاحة | قصص أطفال عن الصدق والأمانة | حواديت حيوانات الغابة',
-        cleanTitle: 'الثعلب مكرون وكذبة التفاحة الذهبية',
-        description: 'حكاية شيقة للأطفال عن الثعلب مكرون الذي تعلم درساً مهماً في الصدق والأمانة وكيف أن قول الحقيقة ينجي دائماً.',
-        category: 'animals',
-        categoryNameAr: 'حيوانات الغابة',
-        duration: '14:30',
-        viewsApprox: 'جديد',
-        isFeatured: true,
-        ageRecommendation: '3+',
-        moralLesson: 'الصدق والأمانة يجلبان محبة الأصدقاء، والكذب يوقع صاحبه في المتاعب',
-        publishedDate: 'أحدث حلقة تم نشرها 🚀',
-      },
-      ...fallback,
-    ];
+      if (seen.has(video.id)) {
+        return false;
+      }
+
+      seen.add(video.id);
+      return true;
+    })
+    .map((video, index) => ({
+      ...video,
+      isFeatured: index === 0,
+    }));
+}
+
+/**
+ * Save successfully fetched live videos for offline use.
+ */
+function saveOfflineCache(
+  videos: VideoStory[],
+  source: string,
+  lastSynced: string
+): void {
+  try {
+    localStorage.setItem(
+      OFFLINE_CACHE_KEY,
+      JSON.stringify({
+        videos,
+        timestamp: Date.now(),
+        source,
+        lastSynced,
+      })
+    );
+  } catch (error) {
+    console.warn('[ApiClient] Could not save offline cache:', error);
   }
+}
 
+/**
+ * Restore the most recently saved list when offline.
+ */
+function readOfflineCache(): VideoFetchResult | null {
+  try {
+    const stored = localStorage.getItem(OFFLINE_CACHE_KEY);
+
+    if (!stored) {
+      return null;
+    }
+
+    const parsed = JSON.parse(stored);
+    const videos = normalizeVideos(parsed.videos);
+
+    if (videos.length === 0) {
+      return null;
+    }
+
+    const timestamp =
+      typeof parsed.timestamp === 'number' &&
+      Number.isFinite(parsed.timestamp)
+        ? parsed.timestamp
+        : 0;
+
+    const lastSynced =
+      typeof parsed.lastSynced === 'string'
+        ? parsed.lastSynced
+        : timestamp > 0
+          ? new Date(timestamp).toISOString()
+          : '';
+
+    return {
+      videos,
+      source: 'offline-cache',
+      lastSynced,
+    };
+  } catch (error) {
+    console.warn('[ApiClient] Offline cache unavailable:', error);
+    return null;
+  }
+}
+
+/**
+ * Use bundled stories only when the live API and
+ * offline cache are unavailable.
+ */
+function getInitialFallback(): VideoFetchResult {
   return {
-    videos: fallback,
+    videos: normalizeVideos(INITIAL_VIDEOS),
     source: 'fallback',
-    lastSynced: new Date().toISOString(),
+    lastSynced: '',
   };
 }
 
 /**
- * Fetch a specific video by ID from server API
+ * Fetch all channel videos from the server API.
+ * The server must return newest videos first.
  */
-export async function fetchVideoById(videoId: string): Promise<VideoStory | null> {
+export async function fetchVideosFromApi(
+  forceRefresh = false
+): Promise<VideoFetchResult> {
   try {
-    const res = await fetch(`/api/videos?id=${encodeURIComponent(videoId)}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.video) {
-        return data.video;
-      }
+    const url = forceRefresh
+      ? '/api/videos?refresh=true'
+      : '/api/videos';
+
+    const response = await fetch(url, {
+      method: 'GET',
+      cache: forceRefresh ? 'no-store' : 'default',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Video API returned HTTP ${response.status}`
+      );
     }
-  } catch (err) {
-    console.warn(`[ApiClient] Failed to fetch video ${videoId}:`, err);
+
+    const data = await response.json();
+
+    if (
+      !data.success ||
+      data.source === 'fallback' ||
+      !Array.isArray(data.videos)
+    ) {
+      throw new Error('Live YouTube data unavailable');
+    }
+
+    const videos = normalizeVideos(data.videos);
+
+    if (videos.length === 0) {
+      throw new Error('No valid videos returned');
+    }
+
+    const source =
+      typeof data.source === 'string'
+        ? data.source
+        : 'server';
+
+    const lastSynced =
+      typeof data.lastSynced === 'string'
+        ? data.lastSynced
+        : new Date().toISOString();
+
+    saveOfflineCache(videos, source, lastSynced);
+
+    return {
+      videos,
+      source,
+      lastSynced,
+    };
+  } catch (error) {
+    console.warn(
+      '[ApiClient] Live videos unavailable:',
+      error
+    );
   }
-  return null;
+
+  // Never replace a saved newer list with old bundled data.
+  const offline = readOfflineCache();
+
+  if (offline) {
+    return offline;
+  }
+
+  return getInitialFallback();
 }
 
 /**
- * Trigger immediate channel refresh
+ * Fetch a single video from the server.
+ */
+export async function fetchVideoById(
+  videoId: string
+): Promise<VideoStory | null> {
+  try {
+    const response = await fetch(
+      `/api/videos?id=${encodeURIComponent(videoId)}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      if (data.success && data.video) {
+        return data.video as VideoStory;
+      }
+    }
+  } catch (error) {
+    console.warn(
+      `[ApiClient] Could not fetch video ${videoId}:`,
+      error
+    );
+  }
+
+  // Check previously saved videos if the server fails.
+  const offline = readOfflineCache();
+
+  if (offline) {
+    const found = offline.videos.find(
+      (video) => video.id === videoId
+    );
+
+    if (found) {
+      return found;
+    }
+  }
+
+  return (
+    INITIAL_VIDEOS.find((video) => video.id === videoId) ??
+    null
+  );
+}
+
+/**
+ * Trigger a manual channel refresh.
+ * Only report success when live synchronization succeeds.
  */
 export async function refreshChannelVideos(): Promise<{
   success: boolean;
   videos: VideoStory[];
   message: string;
 }> {
+  let failureMessage =
+    'تعذر الاتصال بيوتيوب. تم الاحتفاظ بالقصص المتاحة.';
+
   try {
-    const res = await fetch('/api/refresh', {
+    const response = await fetch('/api/refresh', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     });
-    if (res.ok) {
-      const data = await res.json();
-      const fresh = await fetchVideosFromApi(false);
-      return {
-        success: true,
-        videos: fresh.videos,
-        message: data.message || 'تم تحديث قائمة الحكايات بنجاح',
-      };
+
+    const data = await response.json();
+
+    if (
+      !response.ok ||
+      !data.success ||
+      data.source === 'fallback'
+    ) {
+      failureMessage =
+        data.message ||
+        'فشل تحديث الفيديوهات من يوتيوب.';
+
+      throw new Error(failureMessage);
     }
-  } catch (err) {
-    console.warn('[ApiClient] Failed to trigger refresh:', err);
+
+    // Fetch the updated list without using the old HTTP cache.
+    const fresh = await fetchVideosFromApi(true);
+
+    const hasLiveVideos =
+      (fresh.source === 'api' ||
+        fresh.source === 'scraper') &&
+      fresh.videos.length > 0;
+
+    const actuallyUpdated =
+      hasLiveVideos && data.updated !== false;
+
+    return {
+      success: actuallyUpdated,
+      videos: fresh.videos,
+      message: actuallyUpdated
+        ? 'تم تحديث الحكايات من قناة قصة العائلة بنجاح.'
+        : data.updated === false
+          ? 'لم تتم مزامنة جديدة الآن. تم الاحتفاظ بآخر القصص المتاحة.'
+          : 'تعذر تأكيد جلب فيديوهات جديدة. تم الاحتفاظ بالقصص المتاحة.',
+    };
+  } catch (error) {
+    console.warn(
+      '[ApiClient] Channel refresh failed:',
+      error
+    );
   }
 
-  // Still attempt regular fetch
-  const fresh = await fetchVideosFromApi(true);
+  const availableVideos =
+    readOfflineCache() ?? getInitialFallback();
+
   return {
-    success: true,
-    videos: fresh.videos,
-    message: 'تم فحص القناة وعرض أحدث القصص',
+    success: false,
+    videos: availableVideos.videos,
+    message: failureMessage,
   };
 }
