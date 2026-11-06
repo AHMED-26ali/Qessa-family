@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Header } from './components/Header';
 import { HeroFeatured } from './components/HeroFeatured';
 import { CategoriesFilter } from './components/CategoriesFilter';
@@ -73,6 +73,10 @@ export default function App() {
     return INITIAL_VIDEOS[0];
   });
 
+  // Keep an intentionally selected video playing during automatic sync.
+  // On a fresh visit, the big player always shows the newest upload.
+  const userSelectedVideoRef = useRef(false);
+
   // 5. Filtering & Search State
   const [selectedCategory, setSelectedCategory] = useState<StoryCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -146,12 +150,16 @@ export default function App() {
         if (!isMounted || !result.videos.length) return;
 
         setVideos(result.videos);
-        setLastSyncedText(new Date(result.lastSynced).toLocaleTimeString('ar-EG'));
 
-        // If URL doesn't specify a video, select the newest episode from API
-        const urlParams = new URLSearchParams(window.location.search);
-        const vidParam = urlParams.get('v');
-        if (!vidParam && result.videos[0]) {
+        // Offline / bundled data can have no known synchronization time.
+        if (result.lastSynced && !Number.isNaN(Date.parse(result.lastSynced))) {
+          setLastSyncedText(new Date(result.lastSynced).toLocaleTimeString('ar-EG'));
+        }
+
+        // Do not interrupt a story chosen by the visitor or a shared ?v= link.
+        // Otherwise, select the first item, which the server orders newest-first.
+        const videoIdInUrl = new URLSearchParams(window.location.search).get('v');
+        if (!videoIdInUrl && !userSelectedVideoRef.current) {
           setCurrentVideo(result.videos[0]);
         }
       } catch (e) {
@@ -178,10 +186,22 @@ export default function App() {
     setIsSyncing(true);
     try {
       const res = await refreshChannelVideos();
-      if (res.videos.length > 0) {
+      if (res.success && res.videos.length > 0) {
         setVideos(res.videos);
+        setCurrentVideo(res.videos[0]);
+        userSelectedVideoRef.current = false;
         setLastSyncedText(new Date().toLocaleTimeString('ar-EG'));
+
+        // Remove a previously selected video from the URL so the next
+        // automatic sync can keep the newest episode on the big screen.
+        const url = new URL(window.location.href);
+        url.searchParams.delete('v');
+        window.history.replaceState({}, '', url.toString());
+        document.title = `${res.videos[0].cleanTitle} | قصة العائلة`;
         triggerSparkle();
+      } else {
+        console.warn('YouTube refresh did not complete:', res.message);
+        setLastSyncedText('تعذر التحديث - القصص المحفوظة متاحة');
       }
     } catch (e) {
       console.warn('Manual refresh error:', e);
@@ -211,6 +231,7 @@ export default function App() {
     }
 
     if (videoIdParam) {
+      userSelectedVideoRef.current = true;
       const found = videos.find((v) => v.id === videoIdParam);
       if (found) {
         setCurrentVideo(found);
@@ -219,7 +240,12 @@ export default function App() {
         // Dynamic fetch for unlisted or newly published video direct link!
         fetchVideoById(videoIdParam).then((fetched) => {
           if (fetched) {
-            setVideos((prev) => [fetched, ...prev.filter((v) => v.id !== fetched.id)]);
+            // A deep link must not falsely promote an older story to newest.
+            setVideos((prev) =>
+              prev.some((v) => v.id === fetched.id)
+                ? prev
+                : [...prev, { ...fetched, isFeatured: false }]
+            );
             setCurrentVideo(fetched);
             document.title = `${fetched.cleanTitle} | قصة العائلة`;
           }
@@ -230,6 +256,7 @@ export default function App() {
 
   // Video Selection
   const handleSelectVideo = (video: VideoStory) => {
+    userSelectedVideoRef.current = true;
     setCurrentVideo(video);
     document.title = `${video.cleanTitle} | قصة العائلة - حكايات ورسوم متحركة للأطفال`;
     if (typeof window !== 'undefined' && window.history.replaceState) {
@@ -259,6 +286,14 @@ export default function App() {
   const handleGoHome = () => {
     setSelectedCategory('all');
     setSearchQuery('');
+    userSelectedVideoRef.current = false;
+    if (videos.length > 0) {
+      setCurrentVideo(videos[0]);
+      document.title = `${videos[0].cleanTitle} | قصة العائلة`;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete('v');
+    window.history.replaceState({}, '', url.toString());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -286,9 +321,19 @@ export default function App() {
     }
   };
 
+  // The newest upload is already in the main player. Show the previous
+  // uploads in the regular stories grid, with no duplicate featured video.
+  // Favorites and searches can still find the newest story when requested.
+  const libraryVideos = useMemo(() => videos.slice(1), [videos]);
+
   // Filtered stories based on category & search query
   const filteredVideos = useMemo(() => {
-    return videos.filter((video) => {
+    const candidates =
+      selectedCategory === 'favorites' || searchQuery.trim()
+        ? videos
+        : libraryVideos;
+
+    return candidates.filter((video) => {
       // 1. Search Query Filter with comprehensive Arabic normalization
       if (searchQuery.trim()) {
         const matches = matchesSearchQuery(
@@ -311,12 +356,12 @@ export default function App() {
 
       return true;
     });
-  }, [videos, selectedCategory, searchQuery, favorites]);
+  }, [videos, libraryVideos, selectedCategory, searchQuery, favorites]);
 
   // Category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<StoryCategory, number> = {
-      all: videos.length,
+      all: libraryVideos.length,
       princesses: 0,
       animals: 0,
       bedtime: 0,
@@ -325,19 +370,19 @@ export default function App() {
       favorites: favorites.length,
     };
 
-    videos.forEach((v) => {
+    libraryVideos.forEach((v) => {
       if (counts[v.category] !== undefined) {
         counts[v.category]++;
       }
     });
 
     return counts;
-  }, [videos, favorites]);
+  }, [libraryVideos, favorites]);
 
   // Featured videos for top shelf (excluding currently playing story)
   const featuredVideos = useMemo(() => {
-    return videos.filter((v) => v.isFeatured && v.id !== currentVideo.id);
-  }, [videos, currentVideo]);
+    return libraryVideos.filter((v) => v.isFeatured && v.id !== currentVideo.id);
+  }, [libraryVideos, currentVideo]);
 
   // Is current video the newest episode?
   const isLatestUpload = videos.length > 0 && currentVideo.id === videos[0].id;
