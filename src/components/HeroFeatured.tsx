@@ -16,7 +16,6 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { VideoStory } from '../types';
-import { OFFICIAL_CHANNEL_URL } from '../data/videos';
 import { PlayAlongGamePanel } from './games/PlayAlongGamePanel';
 
 interface HeroFeaturedProps {
@@ -128,7 +127,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                 onClick={onRefreshLatest}
                 disabled={isSyncing}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white shadow-2xs transition cursor-pointer disabled:opacity-60"
-                title="فحص قناة يوتيوب للبحث عن قصص جديدة"
+                title={lastSyncedText ? `آخر مزامنة: ${lastSyncedText}` : 'فحص قناة يوتيوب للبحث عن قصص جديدة'}
               >
                 <RefreshCw className={`w-3.5 h-3.5 text-amber-500 ${isSyncing ? 'animate-spin' : ''}`} />
                 <span className="hidden sm:inline">
@@ -211,11 +210,19 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                   </a>
                 </div>
               ) : (
-                <div className="relative w-full h-full group cursor-pointer" onClick={handleStartPlay}>
+                <button
+                  type="button"
+                  onClick={handleStartPlay}
+                  aria-label={`تشغيل حكاية ${currentVideo.cleanTitle}`}
+                  className="relative block w-full h-full group cursor-pointer text-right"
+                >
                   <img
                     src={`https://img.youtube.com/vi/${currentVideo.id}/maxresdefault.jpg`}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${currentVideo.id}/hqdefault.jpg`;
+                      const image = e.currentTarget;
+                      // Avoid an infinite error loop if the fallback image is unavailable.
+                      image.onerror = null;
+                      image.src = `https://img.youtube.com/vi/${currentVideo.id}/hqdefault.jpg`;
                     }}
                     alt={currentVideo.cleanTitle}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -227,13 +234,11 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
 
                   {/* Large Child-Friendly Play Button */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-2">
-                    <button
-                      type="button"
-                      aria-label="تشغيل الحكاية"
-                      className="relative flex items-center justify-center w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 hover:scale-110 active:scale-95 text-white shadow-2xl transition-transform duration-300 ring-4 ring-white/60 cursor-pointer"
+                    <span
+                      className="relative flex items-center justify-center w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 group-hover:scale-110 group-active:scale-95 text-white shadow-2xl transition-transform duration-300 ring-4 ring-white/60"
                     >
                       <Play className="w-8 h-8 sm:w-10 sm:h-10 fill-white ml-1" />
-                    </button>
+                    </span>
                     <span className="text-white font-black text-xs sm:text-sm bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-center">
                       اضغط لبدء الحكاية الآن ▶
                     </span>
@@ -249,7 +254,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                       رسوم متحركة للأطفال
                     </span>
                   </div>
-                </div>
+                </button>
               )}
             </div>
           </div>
