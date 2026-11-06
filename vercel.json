@@ -1,5 +1,6 @@
 
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "installCommand": "npm install --include=dev --legacy-peer-deps",
   "outputDirectory": "dist",
@@ -78,6 +79,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
     {
       "source": "/((?!api/|api$|sitemap\\.xml$).*)",
       "destination": "/index.html"
