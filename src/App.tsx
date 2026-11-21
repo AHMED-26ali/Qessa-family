@@ -306,7 +306,15 @@ export default function App() {
             </div>
           </div>
           <div className="home-story-decoration" aria-hidden="true">
-            <img src="/brand-logo.webp" width="136" height="136" fetchPriority="high" alt="" />
+            <img
+              src="/brand-logo-144.webp"
+              srcSet="/brand-logo-144.webp 144w, /brand-logo-288.webp 288w"
+              sizes="(min-width: 760px) 144px, (min-width: 390px) 19vw, 74px"
+              width="144"
+              height="144"
+              fetchPriority="high"
+              alt=""
+            />
             <span className="home-story-star">✦</span>
             <span className="home-story-star second">✦</span>
           </div>

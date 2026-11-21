@@ -139,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-rose-400 to-indigo-500 shadow-md transform transition duration-300 group-hover:scale-105 group-hover:rotate-3">
                 <img
-                  src="/brand-logo.webp"
+                  src="/brand-logo-144.webp"
                   width="52"
                   height="52"
                   alt="لوجو قصة العائلة"

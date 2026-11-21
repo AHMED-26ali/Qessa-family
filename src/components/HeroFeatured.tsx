@@ -218,22 +218,27 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                 <h2 className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-800 dark:text-amber-100 leading-snug">
                   {currentVideo.cleanTitle}
                 </h2>
-                <p className="line-clamp-2 text-xs sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                  {currentVideo.description}
-                </p>
+                <details className="space-y-2">
+                  <summary className="cursor-pointer text-sm font-bold text-rose-800 dark:text-rose-300">
+                    ملخّص الحكاية
+                  </summary>
+                    <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                      {currentVideo.description}
+                    </p>
 
-                {/* Moral lesson */}
-                {currentVideo.moralLesson && (
-                  <div className="flex items-center gap-2 sm:gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-amber-200/50 dark:bg-amber-950/50 border border-amber-300/80 dark:border-amber-700/60 shadow-2xs">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center shrink-0 font-bold shadow-xs">
-                      <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-slate-900" />
-                    </div>
-                    <div className="text-xs sm:text-sm font-bold text-amber-950 dark:text-amber-200">
-                      <span className="font-black text-amber-900 dark:text-amber-300 ml-1">الدرس المستفاد:</span>
-                      <span>{currentVideo.moralLesson}</span>
-                    </div>
-                  </div>
-                )}
+                    {/* Moral lesson */}
+                    {currentVideo.moralLesson && (
+                      <div className="flex items-center gap-2 sm:gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-amber-200/50 dark:bg-amber-950/50 border border-amber-300/80 dark:border-amber-700/60 shadow-2xs">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center shrink-0 font-bold shadow-xs">
+                          <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-slate-900" />
+                        </div>
+                        <div className="text-xs sm:text-sm font-bold text-amber-950 dark:text-amber-200">
+                          <span className="font-black text-amber-900 dark:text-amber-300 ml-1">الدرس المستفاد:</span>
+                          <span>{currentVideo.moralLesson}</span>
+                        </div>
+                      </div>
+                    )}
+                </details>
               </div>
 
               {/* Action Buttons */}
