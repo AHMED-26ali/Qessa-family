@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   Heart, 
   Sparkles, 
@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Gamepad2,
   RefreshCw,
+  Play,
 } from 'lucide-react';
 import { VideoStory } from '../types';
 import { playerUrl, storyPath, STORY_LIBRARY_PATH } from '../site';
@@ -43,6 +44,13 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const [cinemaLights, setCinemaLights] = useState(false);
   const [isPlayAlongOpen, setIsPlayAlongOpen] = useState(false);
+  const [openVideoId, setOpenVideoId] = useState<string>();
+  const playerRef = useRef<HTMLIFrameElement>(null);
+  const playerIsOpen = currentVideo !== undefined && currentVideo.id === openVideoId;
+
+  useEffect(() => {
+    if (playerIsOpen) playerRef.current?.focus({ preventScroll: true });
+  }, [playerIsOpen]);
 
   const handleShare = () => {
     if (!currentVideo) return;
@@ -149,17 +157,28 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
             <div className={`relative w-full aspect-video min-h-[200px] rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-2xl transition-all duration-500 border-2 ${
               cinemaLights ? 'border-amber-400 shadow-amber-400/20' : 'border-white/90 dark:border-slate-800'
             }`}>
-              {currentVideo ? (
+              {playerIsOpen && currentVideo ? (
                 <iframe
                   key={currentVideo.id}
                   src={playerUrl(currentVideo.id)}
                   title={currentVideo.cleanTitle}
-                  loading="lazy"
-                  allow="encrypted-media; picture-in-picture; fullscreen"
+                  ref={playerRef}
+                  allow="encrypted-media; picture-in-picture"
                   allowFullScreen
                   referrerPolicy="strict-origin-when-cross-origin"
                   className="absolute inset-0 block w-full h-full border-0"
                 />
+              ) : currentVideo ? (
+                <button
+                  type="button"
+                  onClick={() => setOpenVideoId(currentVideo.id)}
+                  className="absolute inset-0 flex w-full flex-col items-center justify-center gap-3 bg-slate-950 p-4 text-center font-bold text-slate-100 hover:bg-slate-900 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-amber-300 cursor-pointer"
+                >
+                  <span className="grid size-12 place-items-center rounded-full bg-amber-300 text-slate-950">
+                    <Play className="size-5 fill-current" aria-hidden="true" />
+                  </span>
+                  <span>افتح مشغّل يوتيوب</span>
+                </button>
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950 p-4 text-center text-sm font-bold text-slate-200">
                   <Tv className="size-8 text-amber-300" aria-hidden="true" />
@@ -199,7 +218,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                 <h2 className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-800 dark:text-amber-100 leading-snug">
                   {currentVideo.cleanTitle}
                 </h2>
-                <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                <p className="line-clamp-2 text-xs sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
                   {currentVideo.description}
                 </p>
 
