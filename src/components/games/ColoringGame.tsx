@@ -165,7 +165,10 @@ export const ColoringGame: React.FC<ColoringGameProps> = ({ soundEnabled, onPlay
         canvas.width = 800;
         canvas.height = 600;
         const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        if (!ctx) {
+          URL.revokeObjectURL(blobURL);
+          return;
+        }
 
         // White background
         ctx.fillStyle = '#ffffff';
@@ -192,12 +195,14 @@ export const ColoringGame: React.FC<ColoringGameProps> = ({ soundEnabled, onPlay
 
         try {
           confetti({
-            particleCount: 50,
+            particleCount: 32,
+            disableForReducedMotion: true,
             spread: 60,
             origin: { y: 0.7 },
           });
         } catch {}
       };
+      image.onerror = () => URL.revokeObjectURL(blobURL);
       image.src = blobURL;
     } catch (e) {
       console.error('Failed to download image locally:', e);
@@ -327,8 +332,16 @@ export const ColoringGame: React.FC<ColoringGameProps> = ({ soundEnabled, onPlay
                 strokeWidth="2.5"
                 strokeLinejoin="round"
                 strokeLinecap="round"
+                role="button"
+                tabIndex={0}
+                aria-label={part.nameAr}
                 onClick={() => handlePartClick(part.id)}
-                className="transition-colors duration-150 hover:opacity-90"
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return;
+                  event.preventDefault();
+                  handlePartClick(part.id);
+                }}
+                className="transition-colors duration-150 hover:opacity-90 focus-visible:stroke-indigo-600"
               />
             );
           })}

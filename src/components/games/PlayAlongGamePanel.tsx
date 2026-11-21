@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
-import { Gamepad2, X, ChevronDown, ChevronUp, Sparkles, VolumeX, Maximize2 } from 'lucide-react';
-import { MemoryGame } from './MemoryGame';
-import { PuzzleGame } from './PuzzleGame';
-import { SpotDifferenceGame } from './SpotDifferenceGame';
-import { ColoringGame } from './ColoringGame';
-import { StoryQuizGame } from './StoryQuizGame';
-import { MagicForestRunner } from './MagicForestRunner';
-import { ActiveGameId } from './GamesHub';
+import { X, VolumeX, Maximize2 } from 'lucide-react';
+import { GameSurface, type ActiveGameId } from './GameSurface';
 
 interface PlayAlongGamePanelProps {
   isOpen: boolean;
@@ -21,6 +15,8 @@ const MINI_GAMES_TABS = [
   { id: 'coloring' as ActiveGameId, name: 'التلوين', emoji: '🎨' },
   { id: 'quiz' as ActiveGameId, name: 'التحدي', emoji: '👑' },
   { id: 'runner' as ActiveGameId, name: 'الغابة', emoji: '🌳' },
+  { id: 'count' as ActiveGameId, name: 'العد', emoji: '⭐' },
+  { id: 'pattern' as ActiveGameId, name: 'النمط', emoji: '🌙' },
 ];
 
 export const PlayAlongGamePanel: React.FC<PlayAlongGamePanelProps> = ({
@@ -92,12 +88,7 @@ export const PlayAlongGamePanel: React.FC<PlayAlongGamePanelProps> = ({
 
       {/* Active Game Embedded with Sound Off by Default */}
       <div className="w-full max-h-[500px] overflow-y-auto">
-        {activeTab === 'memory' && <MemoryGame soundEnabled={false} />}
-        {activeTab === 'puzzle' && <PuzzleGame soundEnabled={false} />}
-        {activeTab === 'spot' && <SpotDifferenceGame soundEnabled={false} />}
-        {activeTab === 'coloring' && <ColoringGame soundEnabled={false} />}
-        {activeTab === 'quiz' && <StoryQuizGame soundEnabled={false} />}
-        {activeTab === 'runner' && <MagicForestRunner soundEnabled={false} />}
+        <GameSurface id={activeTab} soundEnabled={false} />
       </div>
     </div>
   );

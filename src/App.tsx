@@ -5,20 +5,18 @@ import { CategoriesFilter } from './components/CategoriesFilter';
 import { VideoGrid } from './components/VideoGrid';
 import { ChannelBanner } from './components/ChannelBanner';
 import { MobileBottomNav } from './components/MobileBottomNav';
-import { WelcomeModal } from './components/WelcomeModal';
 import { GamesHub } from './components/games/GamesHub';
 import { INITIAL_VIDEOS } from './data/videos';
 import { VideoStory, StoryCategory } from './types';
 import { playCutePop, playSparkleChime } from './utils/audio';
 import { matchesSearchQuery } from './utils/search';
 import { fetchVideosFromApi, refreshChannelVideos } from './utils/apiClient';
-import { storyPath } from './site';
+import { storyPath, STORY_LIBRARY_PATH } from './site';
 
 const STORAGE_KEYS = {
   FAVORITES: 'qessa_family_favs_v2',
   NIGHT_MODE: 'qessa_family_night_v2',
   SOUND_ENABLED: 'qessa_family_sound_v2',
-  WELCOME_DISMISSED: 'qessa_family_welcome_dismissed_v2',
 };
 
 export default function App() {
@@ -78,15 +76,6 @@ export default function App() {
   // 6. Sync & Refresh Status
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedText, setLastSyncedText] = useState<string>('');
-
-  // 7. Welcome Modal
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const dismissed = localStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED);
-      return dismissed !== 'true';
-    }
-    return false;
-  });
 
   // Sync Night Mode Class to <html>
   useEffect(() => {
@@ -203,21 +192,6 @@ export default function App() {
     window.location.assign(storyPath(video.id));
   };
 
-  // Welcome Modal handlers
-  const handleCloseWelcome = () => {
-    setIsWelcomeModalOpen(false);
-  };
-
-  const handleToggleDontShowWelcomeAgain = (checked: boolean) => {
-    try {
-      if (checked) {
-        localStorage.setItem(STORAGE_KEYS.WELCOME_DISMISSED, 'true');
-      } else {
-        localStorage.removeItem(STORAGE_KEYS.WELCOME_DISMISSED);
-      }
-    } catch {}
-  };
-
   // Navigation Helpers
   const handleGoHome = () => {
     setSelectedCategory('all');
@@ -316,7 +290,7 @@ export default function App() {
   const isLatestUpload = catalogSource === 'live' || catalogSource === 'api' || catalogSource === 'scraper';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-300 pb-20 md:pb-0">
+    <div className="home-screen min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-300 pb-20 md:pb-0">
       
       {/* 1. Header with Channel Identity, Bedtime Switcher, Favorites & Games */}
       <Header
@@ -337,13 +311,28 @@ export default function App() {
           const el = document.getElementById('stories-library');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
         }}
-        onOpenWelcome={() => setIsWelcomeModalOpen(true)}
         onOpenGames={handleOpenGames}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3 sm:py-6 space-y-6 sm:space-y-10">
         
+        <section className="home-story-intro">
+          <div className="hero-story-copy">
+            <h2>حواديت أطفال بالعربي</h2>
+            <p>اتفرّجوا على حكاية من قصة العائلة، أو اختاروا لعبة تلعبوها سوا.</p>
+            <div className="hero-story-actions">
+              <a href={STORY_LIBRARY_PATH}>مكتبة الحواديت</a>
+              <a href="#games-world">عالم الألعاب</a>
+            </div>
+          </div>
+          <div className="home-story-decoration" aria-hidden="true">
+            <img src="/brand-logo.webp" width="136" height="136" alt="" />
+            <span className="home-story-star">✦</span>
+            <span className="home-story-star second">✦</span>
+          </div>
+        </section>
+
         {/* 2. Hero Featured Story & Player (With Play-Along Option) */}
         {currentVideo ? (
           <HeroFeatured
@@ -423,16 +412,6 @@ export default function App() {
         onToggleNightMode={() => setIsNightMode((prev) => !prev)}
         onFocusSearch={handleFocusSearch}
         onSoundTrigger={triggerCutePop}
-      />
-
-      {/* 8. Welcome Modal: Shows on first visit or on demand */}
-      <WelcomeModal
-        isOpen={isWelcomeModalOpen}
-        onClose={handleCloseWelcome}
-        onSoundTrigger={triggerCutePop}
-        soundEnabled={soundEnabled}
-        dontShowAgain={typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED) === 'true'}
-        onToggleDontShowAgain={handleToggleDontShowWelcomeAgain}
       />
 
     </div>

@@ -1,111 +1,85 @@
 import React, { useState } from 'react';
-import { 
-  Gamepad2, 
-  Brain, 
-  Puzzle, 
-  Search, 
-  Palette, 
-  Crown, 
-  TreePine, 
-  Volume2, 
-  VolumeX, 
-  Sparkles,
-  Star,
-  Maximize2,
-  Minimize2
-} from 'lucide-react';
-import { MemoryGame } from './MemoryGame';
-import { PuzzleGame } from './PuzzleGame';
-import { SpotDifferenceGame } from './SpotDifferenceGame';
-import { ColoringGame } from './ColoringGame';
-import { StoryQuizGame } from './StoryQuizGame';
-import { MagicForestRunner } from './MagicForestRunner';
+import { Volume2, VolumeX } from 'lucide-react';
+import { GameSurface, type ActiveGameId } from './GameSurface';
 
 interface GamesHubProps {
   soundEnabled: boolean;
   onPlaySound?: () => void;
-  defaultGameId?: string;
 }
-
-export type ActiveGameId = 'memory' | 'puzzle' | 'spot' | 'coloring' | 'quiz' | 'runner';
 
 const GAMES_CATALOG = [
   {
     id: 'memory' as ActiveGameId,
     title: 'لعبة الذاكرة',
     subtitle: 'مطابقة البطاقات',
-    icon: Brain,
     emoji: '🧠',
-    color: 'from-amber-400 to-orange-500',
     borderColor: 'border-amber-300 dark:border-amber-700',
   },
   {
     id: 'puzzle' as ActiveGameId,
     title: 'تركيب الصور',
     subtitle: 'بازل الحكايات',
-    icon: Puzzle,
     emoji: '🧩',
-    color: 'from-sky-400 to-blue-500',
     borderColor: 'border-sky-300 dark:border-sky-700',
   },
   {
     id: 'spot' as ActiveGameId,
     title: 'اكتشف الاختلافات',
     subtitle: 'قوة الملاحظة',
-    icon: Search,
     emoji: '🔍',
-    color: 'from-rose-400 to-pink-500',
     borderColor: 'border-rose-300 dark:border-rose-700',
   },
   {
     id: 'coloring' as ActiveGameId,
     title: 'كتاب التلوين',
     subtitle: 'لوّن واحفظ رسمتك',
-    icon: Palette,
     emoji: '🎨',
-    color: 'from-purple-400 to-pink-500',
     borderColor: 'border-purple-300 dark:border-purple-700',
   },
   {
     id: 'quiz' as ActiveGameId,
     title: 'تحدي الحكايات',
     subtitle: 'أسئلة وقيم أخلاقية',
-    icon: Crown,
     emoji: '👑',
-    color: 'from-amber-500 to-yellow-500',
     borderColor: 'border-yellow-300 dark:border-yellow-700',
   },
   {
     id: 'runner' as ActiveGameId,
     title: 'مغامرة الغابة',
     subtitle: 'اركض واجمع النجوم',
-    icon: TreePine,
     emoji: '🌳',
-    color: 'from-emerald-400 to-teal-500',
     borderColor: 'border-emerald-300 dark:border-emerald-700',
+  },
+  {
+    id: 'count' as ActiveGameId,
+    title: 'عُدّ الأشكال',
+    subtitle: 'تدرّب على العد',
+    emoji: '⭐',
+    borderColor: 'border-amber-300 dark:border-amber-700',
+  },
+  {
+    id: 'pattern' as ActiveGameId,
+    title: 'كمّل النمط',
+    subtitle: 'اختار الشكل اللي بعده',
+    emoji: '🌙',
+    borderColor: 'border-indigo-300 dark:border-indigo-700',
   },
 ];
 
 export const GamesHub: React.FC<GamesHubProps> = ({
   soundEnabled,
   onPlaySound,
-  defaultGameId = 'memory',
 }) => {
-  const [activeGame, setActiveGame] = useState<ActiveGameId>(
-    (defaultGameId as ActiveGameId) || 'memory'
-  );
-  const [gamesSound, setGamesSound] = useState(soundEnabled);
-
-  const selectedMeta = GAMES_CATALOG.find((g) => g.id === activeGame) || GAMES_CATALOG[0];
+  const [activeGame, setActiveGame] = useState<ActiveGameId | null>(null);
+  const [gameSoundOff, setGameSoundOff] = useState(false);
+  const gamesSound = soundEnabled && !gameSoundOff;
+  const toggleGamesSound = () => setGameSoundOff((previous) => !previous);
 
   return (
     <section
       id="games-world"
       className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-100/80 via-white to-pink-100/70 dark:from-slate-900 dark:via-slate-900/90 dark:to-indigo-950 p-3.5 sm:p-7 border-2 border-amber-300/80 dark:border-indigo-900/80 shadow-xl"
     >
-      {/* Decorative Whimsical Glow */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-300/30 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-300/30 dark:bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10">
         
@@ -120,12 +94,9 @@ export const GamesHub: React.FC<GamesHubProps> = ({
                 <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-amber-200">
                   عالم ألعاب قصة العائلة
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white animate-twinkle">
-                  ٦ ألعاب ممتعة 🌟
-                </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
-                ألعاب تفاعلية تعليمية وترفيهية آمنة ومسلية ومصممة خصيصاً للأطفال
+                اختار لعبة وابدأ
               </p>
             </div>
           </div>
@@ -134,7 +105,9 @@ export const GamesHub: React.FC<GamesHubProps> = ({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setGamesSound(!gamesSound)}
+              onClick={toggleGamesSound}
+              disabled={!soundEnabled}
+              aria-pressed={gamesSound}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
               title={gamesSound ? 'كتم أصوات الألعاب' : 'تشغيل أصوات الألعاب'}
             >
@@ -153,16 +126,17 @@ export const GamesHub: React.FC<GamesHubProps> = ({
           </div>
         </div>
 
-        {/* 6 Game Selection Tabs with Touch Friendly Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5 mb-5">
+        {/* Game selection */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 mb-5">
           {GAMES_CATALOG.map((game) => {
             const isCurrent = activeGame === game.id;
             return (
               <button
                 key={game.id}
                 type="button"
+                aria-pressed={isCurrent}
                 onClick={() => {
-                  if (soundEnabled && onPlaySound) onPlaySound();
+                  if (gamesSound) onPlaySound?.();
                   setActiveGame(game.id);
                 }}
                 className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border-2 transition-all duration-200 text-center cursor-pointer select-none ${
@@ -183,27 +157,7 @@ export const GamesHub: React.FC<GamesHubProps> = ({
           })}
         </div>
 
-        {/* Active Game Container */}
-        <div className="transition-all duration-300">
-          {activeGame === 'memory' && (
-            <MemoryGame soundEnabled={gamesSound} onPlaySound={onPlaySound} />
-          )}
-          {activeGame === 'puzzle' && (
-            <PuzzleGame soundEnabled={gamesSound} onPlaySound={onPlaySound} />
-          )}
-          {activeGame === 'spot' && (
-            <SpotDifferenceGame soundEnabled={gamesSound} onPlaySound={onPlaySound} />
-          )}
-          {activeGame === 'coloring' && (
-            <ColoringGame soundEnabled={gamesSound} onPlaySound={onPlaySound} />
-          )}
-          {activeGame === 'quiz' && (
-            <StoryQuizGame soundEnabled={gamesSound} onPlaySound={onPlaySound} />
-          )}
-          {activeGame === 'runner' && (
-            <MagicForestRunner soundEnabled={gamesSound} onPlaySound={onPlaySound} />
-          )}
-        </div>
+        {activeGame && <GameSurface id={activeGame} soundEnabled={gamesSound} onPlaySound={onPlaySound} />}
 
       </div>
     </section>

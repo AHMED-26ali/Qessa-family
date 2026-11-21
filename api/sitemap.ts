@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
-import { SITE_URL, VIDEO_ID, categoryPath, INFORMATION_PAGES, isPublicCategory, playerUrl, storyPath, thumbnailUrl } from '../src/site.js';
+import { SITE_URL, STORY_LIBRARY_PATH, VIDEO_ID, categoryPath, INFORMATION_PAGES, isPublicCategory, playerUrl, storyPath, thumbnailUrl } from '../src/site.js';
 import { escapeMarkup, storyDescription, storyTitle } from '../src/server/pages.js';
+import { excerpt } from '../src/utils/text.js';
 import { getChannelVideos } from '../src/server/youtubeService.js';
 
 function xmlText(value: string) {
@@ -19,7 +20,7 @@ export default async function handler(req: Request, res: Response) {
   const { videos, source } = await getChannelVideos();
   const validVideos = [...new Map(videos.filter((video) => VIDEO_ID.test(video.id)).map((video) => [video.id, video])).values()];
   const categories = [...new Set(validVideos.map((video) => video.category).filter(isPublicCategory))];
-  const paths = ['/', ...Object.keys(INFORMATION_PAGES), ...categories.map(categoryPath)];
+  const paths = ['/', STORY_LIBRARY_PATH, ...Object.keys(INFORMATION_PAGES), ...categories.map(categoryPath)];
 
   const pages = paths.map((path) => `  <url><loc>${SITE_URL}${path}</loc></url>`);
   const stories = validVideos.map((video) => `  <url>
@@ -27,7 +28,7 @@ export default async function handler(req: Request, res: Response) {
     <video:video>
       <video:thumbnail_loc>${thumbnailUrl(video.id)}</video:thumbnail_loc>
       <video:title>${xmlText(storyTitle(video))}</video:title>
-      <video:description>${xmlText(storyDescription(video).slice(0, 2048))}</video:description>
+      <video:description>${xmlText(excerpt(storyDescription(video), 2048))}</video:description>
       <video:player_loc>${xmlText(playerUrl(video.id))}</video:player_loc>
       ${video.uploadDate ? `<video:publication_date>${xmlText(video.uploadDate)}</video:publication_date>` : ''}
     </video:video>

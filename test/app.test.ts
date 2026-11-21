@@ -21,16 +21,15 @@ test('2. Arabic search normalization handles diacritics and Alef variants', () =
   assert.equal(matchesSearchQuery(['الأميرة رابونزل'], 'اميره'), true);
 });
 
-test('3. Server-side YouTube service fetches videos and guarantees newest episode', async () => {
+test('3. Server-side YouTube service includes earlier stories', async () => {
   const result = await getChannelVideos(false);
   assert.equal(result.channelId, 'UChe5CsFfnSS0b6pWN1x3q0w');
   assert.ok(result.videos.length > 0, 'Videos list should not be empty');
 
-  // Verify the newest episode opSJHrJX3mc is present
-  const newest = result.videos.find((v) => v.id === 'opSJHrJX3mc');
-  assert.ok(newest, 'Newest episode opSJHrJX3mc must be in videos list');
-  assert.equal(newest?.cleanTitle, 'الثعلب مكرون وكذبة التفاحة الذهبية');
-  assert.equal(newest?.category, 'animals');
+  const foxStory = result.videos.find((v) => v.id === 'opSJHrJX3mc');
+  assert.ok(foxStory, 'The library should still include the fox story');
+  assert.equal(foxStory.cleanTitle, 'الثعلب مكرون وكذبة التفاحة');
+  assert.equal(foxStory.category, 'animals');
 });
 
 test('4. Lookup by video ID works for direct links', async () => {

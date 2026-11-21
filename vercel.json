@@ -83,6 +83,10 @@
       "destination": "/api/sitemap"
     },
     {
+      "source": "/stories",
+      "destination": "/api/page?view=library"
+    },
+    {
       "source": "/stories/:id",
       "destination": "/api/page?view=story&id=:id"
     },
@@ -96,6 +100,11 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/logo.jpg",
+      "destination": "/brand-logo.webp",
+      "permanent": true
+    },
     {
       "source": "/",
       "has": [

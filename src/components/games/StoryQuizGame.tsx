@@ -121,7 +121,8 @@ export const StoryQuizGame: React.FC<StoryQuizGameProps> = ({ soundEnabled, onPl
       setIsFinished(true);
       try {
         confetti({
-          particleCount: 70,
+          particleCount: 32,
+          disableForReducedMotion: true,
           spread: 80,
           origin: { y: 0.6 },
         });

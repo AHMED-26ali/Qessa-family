@@ -37,7 +37,7 @@ const STAGES: StageData[] = [
       { id: 'sun', nameAr: 'نظارة الشمس', x: 20, y: 18, radius: 10, hint: 'انظر إلى قرص الشمس في السماء!' },
       { id: 'apple', nameAr: 'التفاحة على الشجرة', x: 75, y: 35, radius: 10, hint: 'انظر إلى أغصان شجرة التفاح!' },
       { id: 'butterfly', nameAr: 'فراشة زرقاء', x: 48, y: 30, radius: 9, hint: 'فراشة لطيفة تطير فوق الأزهار!' },
-      { id: 'fox_hat', nameAr: 'قبعة الثعلب', x: 38, y: 65, radius: 10, hint: 'رأس الثعلب مكرون يرتدي شيئاً!' },
+      { id: 'fox_hat', nameAr: 'قبعة الثعلب', x: 37.5, y: 54, radius: 10, hint: 'رأس الثعلب مكرون يرتدي شيئاً!' },
       { id: 'flower', nameAr: 'زهرة عباد الشمس', x: 80, y: 80, radius: 9, hint: 'زهرة صفراء جميلة أسفل اليمين!' },
     ],
     renderScene: (isVariantB, foundIds) => (
@@ -150,11 +150,11 @@ const STAGES: StageData[] = [
     emoji: '🏰',
     description: 'ابحث عن ٥ اختلافات حول القصر الملكي والأميرة!',
     differences: [
-      { id: 'flag', nameAr: 'علم البرج الوردي', x: 50, y: 15, radius: 10, hint: 'أعلى برج في القصر يحمل علماً!' },
+      { id: 'flag', nameAr: 'علم البرج الوردي', x: 52, y: 5, radius: 10, hint: 'أعلى برج في القصر يحمل علماً!' },
       { id: 'cat', nameAr: 'القطة البيضاء', x: 22, y: 78, radius: 10, hint: 'حيوان أليف لطيف يجلس في الحديقة!' },
       { id: 'rainbow', nameAr: 'قوس قزح', x: 20, y: 25, radius: 12, hint: 'انظر في سماء القصر من جهة اليسار!' },
       { id: 'rose', nameAr: 'باقة الورد', x: 78, y: 72, radius: 10, hint: 'بجانب مدخل القصر باقة زهور جميلة!' },
-      { id: 'tiara', nameAr: 'التاج المرصع', x: 52, y: 62, radius: 9, hint: 'فوق رأس الأميرة تاج ذهبي!' },
+      { id: 'tiara', nameAr: 'التاج المرصع', x: 51, y: 56, radius: 9, hint: 'فوق رأس الأميرة تاج ذهبي!' },
     ],
     renderScene: (isVariantB, foundIds) => (
       <svg viewBox="0 0 400 300" className="w-full h-full rounded-2xl select-none">
@@ -186,11 +186,11 @@ const STAGES: StageData[] = [
         <polygon points="260,80 287,30 315,80" fill="#ec4899" />
         {/* Central High Tower */}
         <rect x="175" y="60" width="50" height="90" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="2" />
-        <polygon points="170,60 200,10 230,60" fill="#f43f5e" />
+        <polygon points="170,60 200,28 230,60" fill="#f43f5e" />
 
         {/* Flag (Difference 2: Pink flag in B, missing in A) */}
         {isVariantB && (
-          <g transform="translate(200, 10)">
+          <g transform="translate(200, 28)">
             <line x1="0" y1="0" x2="0" y2="-22" stroke="#475569" strokeWidth="2" />
             <polygon points="0,-22 20,-14 0,-6" fill="#f43f5e" />
           </g>
@@ -280,7 +280,8 @@ export const SpotDifferenceGame: React.FC<SpotDifferenceGameProps> = ({
           setIsWon(true);
           try {
             confetti({
-              particleCount: 70,
+              particleCount: 32,
+              disableForReducedMotion: true,
               spread: 80,
               origin: { y: 0.6 },
             });

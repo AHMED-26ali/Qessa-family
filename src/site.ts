@@ -1,4 +1,5 @@
 export const SITE_URL = 'https://qessa-family.vercel.app';
+export const STORY_LIBRARY_PATH = '/stories';
 export const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 
 export const CATEGORIES = {
@@ -37,7 +38,7 @@ export function isPublicCategory(value: string): value is PublicCategory {
 }
 
 export function storyPath(id: string) {
-  return '/stories/' + id;
+  return STORY_LIBRARY_PATH + '/' + id;
 }
 
 export function categoryPath(category: PublicCategory) {

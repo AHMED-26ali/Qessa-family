@@ -166,7 +166,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                 allow="encrypted-media; picture-in-picture; fullscreen"
                 allowFullScreen
                 referrerPolicy="strict-origin-when-cross-origin"
-                className="block w-full h-full border-0"
+                className="absolute inset-0 block w-full h-full border-0"
               />
             </div>
           </div>

@@ -24,7 +24,7 @@ export const ChannelBanner: React.FC<ChannelBannerProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full p-0.5 sm:p-1 bg-white shadow-xl shrink-0">
                 <img
-                  src="/logo.jpg"
+                  src="/brand-logo.webp"
                   alt="شعار قصة العائلة"
                   className="w-full h-full object-cover rounded-full"
                 />

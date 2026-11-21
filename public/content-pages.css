@@ -48,3 +48,14 @@ p { margin-block: 0 1rem; }
   .site-header nav, .site-footer nav { font-size: .86rem; }
   .brand img { width: 42px; height: 42px; }
 }
+.library-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .5rem; max-inline-size: 33rem; margin-block: 1rem; }
+.library-search label { grid-column: 1 / -1; font-weight: 700; }
+.library-search input { min-inline-size: 0; min-block-size: 2.8rem; padding-inline: .75rem; border: 1px solid #b7a8cf; border-radius: .7rem; background: white; font: inherit; }
+.library-search button { min-block-size: 2.8rem; border: 0; cursor: pointer; font: inherit; font-weight: 700; }
+.search-result { margin-block: 1rem; }
+.duration { color: var(--muted); font-size: .9rem; margin-block-end: .5rem; }
+.player { position: relative; }
+.player iframe { position: absolute; inset: 0; }
+.player-help { margin-block: .6rem; color: var(--muted); font-size: .9rem; }
+.player-help summary { width: fit-content; cursor: pointer; }
+.player-help p { margin: .35rem 0 0; }

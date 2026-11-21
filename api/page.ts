@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import { isPublicCategory, INFORMATION_PAGES, VIDEO_ID } from '../src/site.js';
-import { renderCategory, renderInformation, renderPage, renderStory } from '../src/server/pages.js';
+import { isPublicCategory, INFORMATION_PAGES, STORY_LIBRARY_PATH, VIDEO_ID } from '../src/site.js';
+import { renderCategory, renderInformation, renderLibrary, renderPage, renderStory } from '../src/server/pages.js';
 import { getChannelVideos } from '../src/server/youtubeService.js';
 
 export async function servePage(req: Request, res: Response, view: string, id = '') {
@@ -21,11 +21,17 @@ export async function servePage(req: Request, res: Response, view: string, id = 
   const isCategory = view === 'category' && isPublicCategory(id);
   let retryable = false;
 
-  if (isStory || isCategory) {
+  const isLibrary = view === 'library';
+  const rawQuery = req.query.q;
+  const query = isLibrary && typeof rawQuery === 'string' ? Array.from(rawQuery.trim()).slice(0, 80).join('') : '';
+
+  if (isStory || isCategory || isLibrary) {
     const { videos, source } = await getChannelVideos();
-    res.setHeader('Cache-Control', source === 'fallback'
+    res.setHeader('Cache-Control', source === 'fallback' || query
       ? 'no-store'
       : 'public, s-maxage=300, stale-while-revalidate=600');
+
+    if (isLibrary) return res.send(renderLibrary(videos, query));
 
     if (isStory) {
       const video = videos.find((item) => item.id === id);
@@ -44,7 +50,7 @@ export async function servePage(req: Request, res: Response, view: string, id = 
   if (retryable) res.setHeader('Retry-After', '120');
   return res.status(retryable ? 503 : 404).send(renderPage({
     title, description, pathname: '/404', noindex: true,
-    body: `<h1>${title}</h1><p>${description}</p><p><a href="/#stories-library">مكتبة الحواديت</a></p>`,
+    body: `<h1>${title}</h1><p>${description}</p><p><a href="${STORY_LIBRARY_PATH}">مكتبة الحواديت</a></p>`,
   }));
 }
 

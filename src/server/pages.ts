@@ -1,29 +1,14 @@
+import { storyNotes } from '../data/storyNotes.js';
+import { excerpt } from '../utils/text.js';
+import { matchesSearchQuery } from '../utils/search.js';
 import { OFFICIAL_CHANNEL_URL } from '../data/videos.js';
 import {
-  CATEGORIES, INFORMATION_PAGES, SITE_URL, categoryPath, isPublicCategory, playerUrl, storyPath, thumbnailUrl,
+  CATEGORIES, INFORMATION_PAGES, SITE_URL, STORY_LIBRARY_PATH, categoryPath, isPublicCategory, playerUrl, storyPath, thumbnailUrl,
   type PublicCategory,
 } from '../site.js';
 import type { VideoStory } from '../types.js';
 
 const FACEBOOK_URL = 'https://www.facebook.com/2essafamily';
-
-const storyNotes: Record<string, { title: string; summary: string; question: string }> = {
-  opSJHrJX3mc: {
-    title: 'الثعلب مكرون وكذبة التفاحة',
-    summary: 'مكرون ثعلب صغير بيتعلّم إن كذبة واحدة عن تفاحة ممكن تكبر وتخلّي أصحابه يفقدوا الثقة فيه. لما يواجه نتيجة اختياره، يكتشف إن قول الحقيقة وإصلاح الغلط أشجع من اختراع حكاية تانية عشان يخبيه.',
-    question: 'لو كنت مكان مكرون، كنت هتقول إيه لأصحابك لما تكتشف إن الكذبة سببت لهم مشكلة؟',
-  },
-  'ORv1-Y50SHg': {
-    title: 'الأرنب والسلحفاة | حكاية عن المثابرة',
-    summary: 'الأرنب متأكد إن سرعته لوحدها كفاية علشان يكسب السباق. السلحفاة بتتحرك على مهَل، لكنها بتكمّل خطوتها ورا التانية. الحكاية بتفتح كلام مع الصغار عن الفرق بين إنك تبدأ بسرعة وإنك تفضل مكمل لحد النهاية.',
-    question: 'إيه حاجة اتعلّمت تعملها لما فضلت تحاول خطوة خطوة؟',
-  },
-  dwjIpE3v2kY: {
-    title: 'موانا وسر الجزيرة المفقودة',
-    summary: 'موانا بتبحر في مغامرة علشان تعرف سر جزيرة بتظهر كل مية سنة. رحلة البحث بتاخدها لأماكن جديدة، وكل خطوة بتقرّبها من معرفة اللي حصل للجزيرة وإزاي ممكن تساعد في إنقاذ البحر.',
-    question: 'لو لقيت جزيرة بتظهر مرة كل مية سنة، إيه أول حاجة هتحب تعرفها عنها؟',
-  },
-};
 
 export function escapeMarkup(value: string) {
   return value.replace(/[&<>"']/g, (character) => ({
@@ -40,11 +25,11 @@ export function storyDescription(video: VideoStory) {
   if (notes) return notes.summary;
   const original = video.storyText
     ?.split(/\r?\n/)
-    .map((line) => line.trim())
+    .map((line) => line.replace(/\*{1,2}|\s*#[\p{L}\p{N}_]+/gu, '').trim())
     .filter((line) => /[\p{Script=Arabic}]/u.test(line) && !line.startsWith('#') && !line.includes('://'))
     .slice(0, 3)
     .join('\n\n');
-  return original?.slice(0, 850).trim() || video.description.trim() ||
+  return (original && excerpt(original, 850)) || video.description.trim() ||
     `شاهد حكاية ${storyTitle(video)} بالعربي على موقع قصة العائلة.`;
 }
 
@@ -53,7 +38,7 @@ const navigation = Object.entries(CATEGORIES)
   .join('');
 
 export function renderPage({
-  title, description, pathname, body, image = SITE_URL + '/logo.jpg', data, noindex = false, videoUrl,
+  title, description, pathname, body, image = SITE_URL + '/brand-logo.webp', data, noindex = false, videoUrl,
 }: {
   title: string;
   description: string;
@@ -66,7 +51,7 @@ export function renderPage({
 }) {
   const url = SITE_URL + pathname;
   const safeTitle = escapeMarkup(title + ' | قصة العائلة');
-  const safeDescription = escapeMarkup(description.replace(/\s+/g, ' ').slice(0, 185));
+  const safeDescription = escapeMarkup(excerpt(description.replace(/\s+/g, ' '), 185));
   const secondaryNavigation = Object.entries(INFORMATION_PAGES)
     .map(([link, label]) => `<a href="${link}">${label}</a>`).join('');
   return `<!doctype html>
@@ -81,7 +66,7 @@ export function renderPage({
 <meta name="description" content="${safeDescription}">
 <meta name="robots" content="${noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-video-preview:-1'}">
 <link rel="canonical" href="${escapeMarkup(url)}">
-<link rel="icon" href="/logo.jpg" type="image/jpeg">
+<link rel="icon" href="/brand-logo.webp" type="image/webp">
 <link rel="stylesheet" href="/content-pages.css">
 <meta property="og:site_name" content="قصة العائلة">
 <meta property="og:locale" content="ar_AR">
@@ -97,8 +82,8 @@ ${data ? `<script type="application/ld+json">${JSON.stringify(data).replace(/</g
 <a class="skip" href="#content">انتقل إلى المحتوى</a>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="/"><img src="/logo.jpg" width="52" height="52" alt="">قصة العائلة</a>
-    <nav aria-label="الموقع"><a href="/#stories-library">مكتبة الحواديت</a><a href="/#games-world">الألعاب</a></nav>
+    <a class="brand" href="/"><img src="/brand-logo.webp" width="52" height="52" alt="">قصة العائلة</a>
+    <nav aria-label="الموقع"><a href="${STORY_LIBRARY_PATH}">مكتبة الحواديت</a><a href="/#games-world">الألعاب</a></nav>
   </div>
 </header>
 <main class="wrap" id="content">${body}</main>
@@ -128,7 +113,10 @@ export function renderStory(video: VideoStory, videos: VideoStory[]) {
   const pathname = storyPath(video.id);
   const image = thumbnailUrl(video.id);
   const embed = playerUrl(video.id);
-  const related = videos.filter((item) => item.id !== video.id && item.category === video.category).slice(0, 3);
+  const notes = storyNotes[video.id];
+  const fullStory = notes?.fullVideoId ? videos.find((item) => item.id === notes.fullVideoId) : undefined;
+  const related = videos.filter((item) => item.id !== video.id && item.id !== fullStory?.id &&
+    item.category === video.category).slice(0, 3);
 
   const data = video.uploadDate ? {
     '@context': 'https://schema.org',
@@ -147,23 +135,51 @@ export function renderStory(video: VideoStory, videos: VideoStory[]) {
     title, description, pathname, image, data, videoUrl: embed,
     body: `<article>
     <nav class="breadcrumbs" aria-label="مسار الصفحة">
-      <a href="/#stories-library">الحواديت</a>
+      <a href="${STORY_LIBRARY_PATH}">الحواديت</a>
       ${isPublicCategory(video.category)
         ? `<a href="${categoryPath(video.category)}">${CATEGORIES[video.category].title}</a>`
         : ''}
     </nav>
     <h1>${escapeMarkup(title)}</h1>
+    ${video.isoDuration ? `<p class="duration">مدة الفيديو <time datetime="${escapeMarkup(video.isoDuration)}" dir="ltr">${escapeMarkup(video.duration)}</time></p>` : ''}
     <div class="player">
       <iframe width="960" height="540" src="${escapeMarkup(embed)}" title="${escapeMarkup(title)}"
         allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
     </div>
+    <details class="player-help">
+      <summary>الفيديو ما اشتغلش؟</summary>
+      <p><a href="${pathname}">حمّل صفحة الحكاية من جديد</a> واضغط تشغيل داخل المشغّل. تقدر تقرأ عن الحكاية تحت لو التحميل اتأخر.</p>
+    </details>
     <section class="panel">
       <h2>عن الحدوتة</h2>
       <p class="summary">${escapeMarkup(description)}</p>
-      ${storyNotes[video.id] ? `<p><strong>سؤال بعد الحكاية</strong><br>${escapeMarkup(storyNotes[video.id].question)}</p>` : ''}
+      ${notes?.question ? `<p><strong>سؤال بعد الحكاية</strong><br>${escapeMarkup(notes.question)}</p>` : ''}
+      ${fullStory ? `<p><a class="action" href="${storyPath(fullStory.id)}">شاهد الحكاية الكاملة</a></p>` : ''}
     </section>
   </article>
   ${related.length ? `<section><h2>حواديت تانية ممكن تعجبكم</h2>${storyList(related)}</section>` : ''}`,
+  });
+}
+
+export function renderLibrary(videos: VideoStory[], query: string) {
+  const title = 'مكتبة حواديت الأطفال بالعربي';
+  const description = 'دوروا على حدوتة بالاسم، أو اختاروا من قصص الأميرات والحيوانات وحواديت قبل النوم. فيديوهات عربية للأطفال من قناة قصة العائلة.';
+  const matchingVideos = query ? videos.filter((video) => matchesSearchQuery([
+    storyTitle(video), video.title, video.description, video.categoryNameAr,
+  ], query)) : videos;
+  const safeQuery = escapeMarkup(query);
+
+  return renderPage({
+    title, description, pathname: STORY_LIBRARY_PATH, noindex: !!query,
+    body: `<h1>${title}</h1><p class="intro">${description}</p>
+    <form role="search" action="${STORY_LIBRARY_PATH}" method="get" class="library-search">
+      <label for="story-query">ابحث باسم الحدوتة أو الشخصية</label>
+      <input id="story-query" name="q" type="search" value="${safeQuery}" maxlength="80" dir="auto">
+      <button class="action" type="submit">بحث</button>
+    </form>
+    <nav aria-label="اختار تصنيف">${navigation}</nav>
+    ${query ? `<p class="search-result">${matchingVideos.length ? `نتائج البحث عن «${safeQuery}»` : `ملقيناش حدوتة باسم «${safeQuery}». جرّب اسمًا أقصر.`} <a href="${STORY_LIBRARY_PATH}">كل الحواديت</a></p>` : ''}
+    ${storyList(matchingVideos)}`,
   });
 }
 
@@ -172,7 +188,7 @@ export function renderCategory(category: PublicCategory, videos: VideoStory[]) {
   return renderPage({
     title, description, pathname: categoryPath(category), noindex: !videos.length,
     body: `<h1>${title}</h1><p class="intro">${description}</p>
-    ${videos.length ? storyList(videos) : '<p>الحواديت في التصنيف ده هتظهر لما تتوفر على القناة. تقدروا تتصفحوا مكتبة الحواديت من الصفحة الرئيسية.</p>'}`,
+    ${videos.length ? storyList(videos) : '<p>الحواديت في التصنيف ده هتظهر لما تتوفر على القناة. تقدروا تتصفحوا <a href="/stories">مكتبة الحواديت</a>.</p>'}`,
   });
 }
 

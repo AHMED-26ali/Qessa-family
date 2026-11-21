@@ -14,7 +14,6 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
   const [starsCollected, setStarsCollected] = useState(0);
   const [level, setLevel] = useState(1);
   const [isWon, setIsWon] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false);
 
   // Active touch buttons state
   const keysRef = useRef<{ left: boolean; right: boolean; jump: boolean }>({
@@ -46,7 +45,6 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
   const initLevel = (lvl = 1) => {
     setLevel(lvl);
     setIsWon(false);
-    setIsGameOver(false);
     setScore(0);
     setStarsCollected(0);
 
@@ -92,47 +90,22 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
     };
   };
 
-  // Keyboard Event Listeners
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (['ArrowLeft', 'KeyA'].includes(e.code)) {
-        keysRef.current.left = true;
-      }
-      if (['ArrowRight', 'KeyD'].includes(e.code)) {
-        keysRef.current.right = true;
-      }
-      if (['ArrowUp', 'KeyW', 'Space'].includes(e.code)) {
-        keysRef.current.jump = true;
-        e.preventDefault();
-      }
+  function setKeyboardControl(event: React.KeyboardEvent, pressed: boolean) {
+    if (!isPlaying) return;
+    const controls: Record<string, keyof typeof keysRef.current> = {
+      ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
+      ArrowUp: 'jump', KeyW: 'jump', Space: 'jump',
     };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (['ArrowLeft', 'KeyA'].includes(e.code)) {
-        keysRef.current.left = false;
-      }
-      if (['ArrowRight', 'KeyD'].includes(e.code)) {
-        keysRef.current.right = false;
-      }
-      if (['ArrowUp', 'KeyW', 'Space'].includes(e.code)) {
-        keysRef.current.jump = false;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, []);
+    const control = controls[event.code];
+    if (!control) return;
+    event.preventDefault();
+    keysRef.current[control] = pressed;
+  }
 
   // Main Game Loop on Canvas
   useEffect(() => {
     if (!isPlaying) return;
 
-    initLevel(level);
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -211,7 +184,8 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
         setIsPlaying(false);
         try {
           confetti({
-            particleCount: 80,
+            particleCount: 38,
+            disableForReducedMotion: true,
             spread: 90,
             origin: { y: 0.5 },
           });
@@ -299,9 +273,11 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
     };
   }, [isPlaying, level]);
 
-  const handleStart = () => {
+  const handleStart = (nextLevel = level) => {
+    keysRef.current = { left: false, right: false, jump: false };
+    initLevel(nextLevel);
     setIsPlaying(true);
-    initLevel(level);
+    canvasRef.current?.focus({ preventScroll: true });
   };
 
   return (
@@ -340,7 +316,12 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
           ref={canvasRef}
           width={500}
           height={300}
-          className="w-full h-full block"
+          tabIndex={0}
+          aria-label="ملعب مغامرة الغابة. استخدم الأسهم للحركة والمسافة للقفز."
+          onKeyDown={(event) => setKeyboardControl(event, true)}
+          onKeyUp={(event) => setKeyboardControl(event, false)}
+          onBlur={() => { keysRef.current = { left: false, right: false, jump: false }; }}
+          className="w-full h-full block focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-indigo-600"
         />
 
         {/* Start Overlay */}
@@ -355,7 +336,7 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
             </p>
             <button
               type="button"
-              onClick={handleStart}
+              onClick={() => handleStart()}
               className="mt-2 flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-sm shadow-xl active:scale-95 transition cursor-pointer"
             >
               <Play className="w-4 h-4 fill-white" />
@@ -375,20 +356,14 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
             <div className="flex items-center gap-2 mt-2">
               <button
                 type="button"
-                onClick={() => {
-                  initLevel(level + 1);
-                  setIsPlaying(true);
-                }}
+                onClick={() => handleStart(level + 1)}
                 className="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md active:scale-95 transition cursor-pointer"
               >
                 المستوى التالي ➔
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  initLevel(level);
-                  setIsPlaying(true);
-                }}
+                onClick={() => handleStart(level)}
                 className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black text-xs transition cursor-pointer"
               >
                 إعادة المستوى ↺
@@ -404,32 +379,32 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onPointerDown={() => {
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
               keysRef.current.right = true;
             }}
             onPointerUp={() => {
               keysRef.current.right = false;
             }}
-            onPointerLeave={() => {
-              keysRef.current.right = false;
-            }}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white dark:bg-slate-800 border-2 border-emerald-400 dark:border-emerald-700 text-slate-800 dark:text-slate-100 flex items-center justify-center shadow-md active:scale-90 select-none cursor-pointer"
+            onLostPointerCapture={() => { keysRef.current.right = false; }}
+            onPointerCancel={() => { keysRef.current.right = false; }}
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white dark:bg-slate-800 border-2 border-emerald-400 dark:border-emerald-700 text-slate-800 dark:text-slate-100 flex items-center justify-center shadow-md active:scale-90 select-none touch-none cursor-pointer"
             title="تحرك لليمين"
           >
             <ArrowRight className="w-6 h-6" />
           </button>
           <button
             type="button"
-            onPointerDown={() => {
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
               keysRef.current.left = true;
             }}
             onPointerUp={() => {
               keysRef.current.left = false;
             }}
-            onPointerLeave={() => {
-              keysRef.current.left = false;
-            }}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white dark:bg-slate-800 border-2 border-emerald-400 dark:border-emerald-700 text-slate-800 dark:text-slate-100 flex items-center justify-center shadow-md active:scale-90 select-none cursor-pointer"
+            onLostPointerCapture={() => { keysRef.current.left = false; }}
+            onPointerCancel={() => { keysRef.current.left = false; }}
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white dark:bg-slate-800 border-2 border-emerald-400 dark:border-emerald-700 text-slate-800 dark:text-slate-100 flex items-center justify-center shadow-md active:scale-90 select-none touch-none cursor-pointer"
             title="تحرك لليسار"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -439,16 +414,16 @@ export const MagicForestRunner: React.FC<MagicForestRunnerProps> = ({ soundEnabl
         {/* Big Jump Button */}
         <button
           type="button"
-          onPointerDown={() => {
-            keysRef.current.jump = true;
-          }}
+          onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
+              keysRef.current.jump = true;
+            }}
           onPointerUp={() => {
             keysRef.current.jump = false;
           }}
-          onPointerLeave={() => {
-            keysRef.current.jump = false;
-          }}
-          className="px-6 h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-sm flex items-center gap-2 shadow-lg active:scale-90 select-none cursor-pointer border-2 border-white/60"
+          onLostPointerCapture={() => { keysRef.current.jump = false; }}
+            onPointerCancel={() => { keysRef.current.jump = false; }}
+          className="px-6 h-12 sm:h-14 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-sm flex items-center gap-2 shadow-lg active:scale-90 select-none touch-none cursor-pointer border-2 border-white/60"
           title="قفز"
         >
           <ArrowUp className="w-6 h-6" />

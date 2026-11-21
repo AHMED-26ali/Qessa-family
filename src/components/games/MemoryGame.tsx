@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Trophy, Sparkles, Volume2, VolumeX, Star, Award } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -27,46 +27,39 @@ const STORY_ITEMS = [
   { emoji: '🍭', nameAr: 'كوكب الحلوى' },
 ];
 
+function makeDeck(difficulty: Difficulty) {
+  const pairs = difficulty === 'easy' ? 4 : difficulty === 'medium' ? 6 : 8;
+  const deck = STORY_ITEMS.slice(0, pairs).flatMap((item, index) => [
+    { ...item, id: index * 2, matched: false },
+    { ...item, id: index * 2 + 1, matched: false },
+  ]);
+  for (let index = deck.length - 1; index > 0; index--) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [deck[index], deck[other]] = [deck[other], deck[index]];
+  }
+  return deck;
+}
+
 export const MemoryGame: React.FC<MemoryGameProps> = ({ soundEnabled, onPlaySound }) => {
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
-  const [cards, setCards] = useState<CardItem[]>([]);
+  const [cards, setCards] = useState<CardItem[]>(() => makeDeck('easy'));
   const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
 
-  // Initialize Cards based on difficulty
+  const pendingFlip = useRef<number | undefined>(undefined);
   const startNewGame = (diff = difficulty) => {
+    window.clearTimeout(pendingFlip.current);
     setDifficulty(diff);
     setIsWon(false);
     setMoves(0);
     setFlippedIndices([]);
     setIsLocked(false);
-
-    let pairsCount = 4; // 8 cards (4x2)
-    if (diff === 'medium') pairsCount = 6; // 12 cards (4x3)
-    if (diff === 'hard') pairsCount = 8; // 16 cards (4x4)
-
-    const selectedItems = STORY_ITEMS.slice(0, pairsCount);
-    const deck: CardItem[] = [];
-
-    selectedItems.forEach((item, index) => {
-      deck.push({ id: index * 2, emoji: item.emoji, nameAr: item.nameAr, matched: false });
-      deck.push({ id: index * 2 + 1, emoji: item.emoji, nameAr: item.nameAr, matched: false });
-    });
-
-    // Shuffle
-    for (let i = deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-
-    setCards(deck);
+    setCards(makeDeck(diff));
   };
 
-  useEffect(() => {
-    startNewGame(difficulty);
-  }, [difficulty]);
+  useEffect(() => () => window.clearTimeout(pendingFlip.current), []);
 
   const handleCardClick = (index: number) => {
     if (isLocked || isWon) return;
@@ -87,7 +80,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ soundEnabled, onPlaySoun
 
       if (firstCard.emoji === secondCard.emoji) {
         // Matched!
-        setTimeout(() => {
+        pendingFlip.current = window.setTimeout(() => {
           setCards((prev) =>
             prev.map((c, idx) =>
               idx === firstIdx || idx === secondIdx ? { ...c, matched: true } : c
@@ -98,7 +91,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ soundEnabled, onPlaySoun
         }, 500);
       } else {
         // Not matched - flip back
-        setTimeout(() => {
+        pendingFlip.current = window.setTimeout(() => {
           setFlippedIndices([]);
           setIsLocked(false);
         }, 1000);
@@ -112,7 +105,8 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ soundEnabled, onPlaySoun
       setIsWon(true);
       try {
         confetti({
-          particleCount: 60,
+          particleCount: 32,
+          disableForReducedMotion: true,
           spread: 70,
           origin: { y: 0.6 },
         });

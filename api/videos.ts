@@ -78,7 +78,7 @@ export default async function handler(
 
     // The service supplies videos newest first.
     // Only the first video belongs on the big screen.
-    const videos = uniqueVideos.map((video, index) => ({
+    const videos = uniqueVideos.map(({ storyText: _storyText, ...video }, index) => ({
       ...video,
       isFeatured: index === 0,
     }));

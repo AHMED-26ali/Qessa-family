@@ -73,6 +73,8 @@ async function startServer() {
     next();
   });
 
+  app.get('/logo.jpg', (_req, res) => res.redirect(308, '/brand-logo.webp'));
+  app.all('/stories', (req, res) => servePage(req, res, 'library'));
   app.all('/stories/:id', (req, res) => servePage(req, res, 'story', req.params.id));
   app.all('/categories/:id', (req, res) => servePage(req, res, 'category', req.params.id));
   app.all(['/about', '/privacy', '/contact'], (req, res) => servePage(req, res, 'info', req.path.slice(1)));

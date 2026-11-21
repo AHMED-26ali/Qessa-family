@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { RotateCcw, Eye, Trophy, Sparkles, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -71,10 +71,32 @@ const THEMES: PuzzleTheme[] = [
   },
 ];
 
+const EXTRA_PIECES = [
+  { emoji: '🚪', text: 'باب خشبي', bg: 'bg-orange-200' },
+  { emoji: '🪶', text: 'ريشة ناعمة', bg: 'bg-amber-100' },
+  { emoji: '🍃', text: 'ورقة شجر', bg: 'bg-emerald-200' },
+  { emoji: '🧺', text: 'سلة الحواديت', bg: 'bg-orange-300' },
+  { emoji: '🧸', text: 'دبدوب صغير', bg: 'bg-rose-200' },
+  { emoji: '🔑', text: 'مفتاح قديم', bg: 'bg-yellow-200' },
+  { emoji: '🌙', text: 'هلال الليل', bg: 'bg-indigo-200' },
+];
+
+function shuffledTiles(size: GridSize) {
+  const tiles = Array.from({ length: size * size }, (_, index) => index);
+  for (let index = tiles.length - 1; index > 0; index--) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [tiles[index], tiles[other]] = [tiles[other], tiles[index]];
+  }
+  if (tiles.every((tile, index) => tile === index)) {
+    [tiles[0], tiles[1]] = [tiles[1], tiles[0]];
+  }
+  return tiles;
+}
+
 export const PuzzleGame: React.FC<PuzzleGameProps> = ({ soundEnabled, onPlaySound }) => {
   const [themeIndex, setThemeIndex] = useState(0);
   const [gridSize, setGridSize] = useState<GridSize>(3);
-  const [tiles, setTiles] = useState<number[]>([]);
+  const [tiles, setTiles] = useState<number[]>(() => shuffledTiles(3));
   const [selectedTileIndex, setSelectedTileIndex] = useState<number | null>(null);
   const [moves, setMoves] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
@@ -91,32 +113,16 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({ soundEnabled, onPlaySoun
     setIsWon(false);
     setSelectedTileIndex(null);
 
-    const count = size * size;
-    // Generate solved indices 0 .. count-1
-    const initial = Array.from({ length: count }, (_, i) => i);
-
-    // Shuffle tiles
-    let shuffled = [...initial];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
-    // Ensure it's not already solved
-    if (shuffled.every((val, idx) => val === idx)) {
-      [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
-    }
-
-    setTiles(shuffled);
+    setTiles(shuffledTiles(size));
   };
-
-  useEffect(() => {
-    initPuzzle(gridSize, themeIndex);
-  }, [gridSize, themeIndex]);
 
   // Handle Tile Click / Tap to Swap
   const handleTileClick = (index: number) => {
     if (isWon) return;
+    if (selectedTileIndex === index) {
+      setSelectedTileIndex(null);
+      return;
+    }
 
     if (selectedTileIndex === null) {
       // First tile selected
@@ -139,7 +145,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({ soundEnabled, onPlaySoun
         setIsWon(true);
         try {
           confetti({
-            particleCount: 60,
+            particleCount: 32,
+            disableForReducedMotion: true,
             spread: 80,
             origin: { y: 0.6 },
           });
@@ -150,8 +157,7 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({ soundEnabled, onPlaySoun
 
   // Helper to render piece content
   const renderPieceContent = (pieceIdx: number) => {
-    // For 3x3, use elements directly
-    const elem = currentTheme.elements[pieceIdx % currentTheme.elements.length];
+    const elem = currentTheme.elements[pieceIdx] || EXTRA_PIECES[pieceIdx - currentTheme.elements.length];
     return (
       <div className={`w-full h-full flex flex-col items-center justify-center p-1 rounded-xl text-center select-none ${elem.bg} text-slate-900 shadow-inner`}>
         <span className="text-2xl sm:text-3xl">{elem.emoji}</span>

@@ -1,6 +1,8 @@
 
 import type { VideoStory, StoryCategory } from '../types.js';
 import { INITIAL_VIDEOS } from '../data/videos.js';
+import { storyNotes } from '../data/storyNotes.js';
+import { excerpt } from '../utils/text.js';
 
 try {
   process.loadEnvFile?.();
@@ -33,6 +35,14 @@ const REFRESH_COOLDOWN_MS = 25 * 1000;
 let lastManualRefreshTime = 0;
 
 const CURATED_METADATA: Record<string, Partial<VideoStory>> = {
+  '490MWmufuIA': {
+    category: 'adventure',
+    categoryNameAr: 'مغامرات وأساطير',
+  },
+  GGWynEnmJNs: {
+    category: 'princesses',
+    categoryNameAr: 'قصص الأميرات',
+  },
   opSJHrJX3mc: {
     cleanTitle: 'الثعلب مكرون وكذبة التفاحة الذهبية',
     category: 'animals',
@@ -464,6 +474,7 @@ function normalizeVideos(
 
   return unique.map((video, index) => ({
     ...video,
+    cleanTitle: storyNotes[video.id]?.title || video.cleanTitle,
     isFeatured: index === 0,
     publishedDate:
       index === 0 && markNewest
@@ -642,8 +653,7 @@ async function fetchViaYouTubeDataApi(
           curated.cleanTitle ||
           cleanVideoTitle(rawTitle),
 
-        description: curated.description || description.slice(0, 180).trimEnd() +
-          (description.length > 180 ? '…' : ''),
+        description: curated.description || excerpt(description, 180),
         storyText: description.trim() || undefined,
 
         category:
