@@ -2,10 +2,20 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <script>
+      (() => {
+        let nightMode;
+        try { nightMode = JSON.parse(localStorage.getItem('qessa_family_night_v2')); } catch {}
+        const hour = new Date().getHours();
+        const prefersNight = typeof nightMode === 'boolean' ? nightMode : hour >= 20 || hour < 6;
+        document.documentElement.classList.toggle('dark', prefersNight);
+      })();
+    </script>
+    <!-- Homepage styles -->
     <meta name="google-adsense-account" content="ca-pub-7000140651360496">
     <script>(window.adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;</script>
     <script async fetchpriority="low" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7000140651360496" crossorigin="anonymous"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     <meta name="google-site-verification" content="okP8rD15avAHb8y7NNh_fHNYUKCTyjUrxGDbguQ-2gk" />
     <meta name="theme-color" content="#fffbeb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
