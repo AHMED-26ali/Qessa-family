@@ -11,7 +11,6 @@ import { ActiveGameId } from './GamesHub';
 interface PlayAlongGamePanelProps {
   isOpen: boolean;
   onClose: () => void;
-  isVideoPlaying: boolean;
   onOpenFullGamesHub: () => void;
 }
 
@@ -27,7 +26,6 @@ const MINI_GAMES_TABS = [
 export const PlayAlongGamePanel: React.FC<PlayAlongGamePanelProps> = ({
   isOpen,
   onClose,
-  isVideoPlaying,
   onOpenFullGamesHub,
 }) => {
   const [activeTab, setActiveTab] = useState<ActiveGameId>('memory');

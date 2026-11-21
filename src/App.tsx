@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Header } from './components/Header';
 import { HeroFeatured } from './components/HeroFeatured';
 import { CategoriesFilter } from './components/CategoriesFilter';
@@ -6,13 +6,13 @@ import { VideoGrid } from './components/VideoGrid';
 import { ChannelBanner } from './components/ChannelBanner';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { WelcomeModal } from './components/WelcomeModal';
-import { PrivacyModal } from './components/PrivacyModal';
 import { GamesHub } from './components/games/GamesHub';
 import { INITIAL_VIDEOS } from './data/videos';
 import { VideoStory, StoryCategory } from './types';
 import { playCutePop, playSparkleChime } from './utils/audio';
 import { matchesSearchQuery } from './utils/search';
-import { fetchVideosFromApi, fetchVideoById, refreshChannelVideos } from './utils/apiClient';
+import { fetchVideosFromApi, refreshChannelVideos } from './utils/apiClient';
+import { storyPath } from './site';
 
 const STORAGE_KEYS = {
   FAVORITES: 'qessa_family_favs_v2',
@@ -73,10 +73,6 @@ export default function App() {
     return INITIAL_VIDEOS[0];
   });
 
-  // Keep an intentionally selected video playing during automatic sync.
-  // On a fresh visit, the big player always shows the newest upload.
-  const userSelectedVideoRef = useRef(false);
-
   // 5. Filtering & Search State
   const [selectedCategory, setSelectedCategory] = useState<StoryCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,7 +81,7 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedText, setLastSyncedText] = useState<string>('');
 
-  // 7. Modals: Welcome Modal & Privacy Policy Modal
+  // 7. Welcome Modal
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const dismissed = localStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED);
@@ -93,8 +89,6 @@ export default function App() {
     }
     return false;
   });
-
-  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState<boolean>(false);
 
   // Sync Night Mode Class to <html>
   useEffect(() => {
@@ -156,12 +150,7 @@ export default function App() {
           setLastSyncedText(new Date(result.lastSynced).toLocaleTimeString('ar-EG'));
         }
 
-        // Do not interrupt a story chosen by the visitor or a shared ?v= link.
-        // Otherwise, select the first item, which the server orders newest-first.
-        const videoIdInUrl = new URLSearchParams(window.location.search).get('v');
-        if (!videoIdInUrl && !userSelectedVideoRef.current) {
-          setCurrentVideo(result.videos[0]);
-        }
+        setCurrentVideo(result.videos[0]);
       } catch (e) {
         console.warn('Initial videos load warning:', e);
       }
@@ -189,15 +178,8 @@ export default function App() {
       if (res.success && res.videos.length > 0) {
         setVideos(res.videos);
         setCurrentVideo(res.videos[0]);
-        userSelectedVideoRef.current = false;
         setLastSyncedText(new Date().toLocaleTimeString('ar-EG'));
 
-        // Remove a previously selected video from the URL so the next
-        // automatic sync can keep the newest episode on the big screen.
-        const url = new URL(window.location.href);
-        url.searchParams.delete('v');
-        window.history.replaceState({}, '', url.toString());
-        document.title = `${res.videos[0].cleanTitle} | قصة العائلة`;
         triggerSparkle();
       } else {
         console.warn('YouTube refresh did not complete:', res.message);
@@ -210,61 +192,17 @@ export default function App() {
     }
   };
 
-  // Deep Link Listener (?v=VIDEO_ID and ?category=CAT and ?section=games)
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (new URLSearchParams(window.location.search).get('section') !== 'games') return;
 
-    const searchParams = new URLSearchParams(window.location.search);
-    const videoIdParam = searchParams.get('v');
-    const categoryParam = searchParams.get('category') as StoryCategory | null;
-    const sectionParam = searchParams.get('section');
+    const timeout = setTimeout(() => {
+      document.getElementById('games-world')?.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, []);
 
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
-    }
-
-    if (sectionParam === 'games') {
-      setTimeout(() => {
-        const gamesEl = document.getElementById('games-world');
-        if (gamesEl) gamesEl.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
-    }
-
-    if (videoIdParam) {
-      userSelectedVideoRef.current = true;
-      const found = videos.find((v) => v.id === videoIdParam);
-      if (found) {
-        setCurrentVideo(found);
-        document.title = `${found.cleanTitle} | قصة العائلة`;
-      } else {
-        // Dynamic fetch for unlisted or newly published video direct link!
-        fetchVideoById(videoIdParam).then((fetched) => {
-          if (fetched) {
-            // A deep link must not falsely promote an older story to newest.
-            setVideos((prev) =>
-              prev.some((v) => v.id === fetched.id)
-                ? prev
-                : [...prev, { ...fetched, isFeatured: false }]
-            );
-            setCurrentVideo(fetched);
-            document.title = `${fetched.cleanTitle} | قصة العائلة`;
-          }
-        });
-      }
-    }
-  }, [videos]);
-
-  // Video Selection
   const handleSelectVideo = (video: VideoStory) => {
-    userSelectedVideoRef.current = true;
-    setCurrentVideo(video);
-    document.title = `${video.cleanTitle} | قصة العائلة - حكايات ورسوم متحركة للأطفال`;
-    if (typeof window !== 'undefined' && window.history.replaceState) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('v', video.id);
-      window.history.replaceState({}, '', url.toString());
-    }
-    window.scrollTo({ top: 30, behavior: 'smooth' });
+    window.location.assign(storyPath(video.id));
   };
 
   // Welcome Modal handlers
@@ -286,14 +224,9 @@ export default function App() {
   const handleGoHome = () => {
     setSelectedCategory('all');
     setSearchQuery('');
-    userSelectedVideoRef.current = false;
     if (videos.length > 0) {
       setCurrentVideo(videos[0]);
-      document.title = `${videos[0].cleanTitle} | قصة العائلة`;
     }
-    const url = new URL(window.location.href);
-    url.searchParams.delete('v');
-    window.history.replaceState({}, '', url.toString());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -410,7 +343,6 @@ export default function App() {
           if (el) el.scrollIntoView({ behavior: 'smooth' });
         }}
         onOpenWelcome={() => setIsWelcomeModalOpen(true)}
-        onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
         onOpenGames={handleOpenGames}
       />
 
@@ -457,7 +389,6 @@ export default function App() {
           favorites={favorites}
           selectedCategory={selectedCategory}
           searchQuery={searchQuery}
-          onSelectVideo={handleSelectVideo}
           onToggleFavorite={handleToggleFavorite}
           onSoundTrigger={triggerCutePop}
           onResetCategory={() => {
@@ -469,11 +400,7 @@ export default function App() {
       </main>
 
       {/* 6. Channel Info & Official Footer */}
-      <ChannelBanner
-        onSoundTrigger={triggerCutePop}
-        onOpenWelcome={() => setIsWelcomeModalOpen(true)}
-        onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
-      />
+      <ChannelBanner onSoundTrigger={triggerCutePop} />
 
       {/* 7. Mobile Floating Bottom Bar with 5 icons */}
       <MobileBottomNav
@@ -496,12 +423,6 @@ export default function App() {
         soundEnabled={soundEnabled}
         dontShowAgain={typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED) === 'true'}
         onToggleDontShowAgain={handleToggleDontShowWelcomeAgain}
-      />
-
-      {/* 9. Privacy & Child Safety Modal for Parents */}
-      <PrivacyModal
-        isOpen={isPrivacyModalOpen}
-        onClose={() => setIsPrivacyModalOpen(false)}
       />
 
     </div>

@@ -1,17 +1,14 @@
 import React from 'react';
-import { Youtube, ShieldCheck, Heart, Sparkles, Star, ExternalLink, Shield } from 'lucide-react';
+import { Youtube, ShieldCheck, Heart, Sparkles, Star, ExternalLink } from 'lucide-react';
 import { OFFICIAL_CHANNEL_URL, CHANNEL_HANDLE, CHANNEL_NAME } from '../data/videos';
+import { INFORMATION_PAGES } from '../site';
 
 interface ChannelBannerProps {
   onSoundTrigger: () => void;
-  onOpenWelcome?: () => void;
-  onOpenPrivacy?: () => void;
 }
 
 export const ChannelBanner: React.FC<ChannelBannerProps> = ({ 
   onSoundTrigger, 
-  onOpenWelcome,
-  onOpenPrivacy,
 }) => {
   return (
     <footer className="mt-8 sm:mt-16 pt-6 sm:pt-8 pb-10 sm:pb-12 border-t sm:border-t-2 border-amber-200/60 dark:border-indigo-950/80 bg-gradient-to-b from-transparent via-amber-50/40 to-amber-100/30 dark:via-slate-900/40 dark:to-slate-950 transition-colors">
@@ -90,31 +87,11 @@ export const ChannelBanner: React.FC<ChannelBannerProps> = ({
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
             <span>جميع الحقوق محفوظة لقناة <strong>قصة العائلة | Qessa family</strong> © {new Date().getFullYear()}</span>
             
-            {onOpenPrivacy && (
-              <button
-                type="button"
-                onClick={() => {
-                  onSoundTrigger();
-                  onOpenPrivacy();
-                }}
-                className="text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-amber-400 underline font-bold cursor-pointer"
-              >
-                سياسة الخصوصية والأمان للأطفال
-              </button>
-            )}
-
-            {onOpenWelcome && (
-              <button
-                type="button"
-                onClick={() => {
-                  onSoundTrigger();
-                  onOpenWelcome();
-                }}
-                className="text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-amber-400 underline font-bold cursor-pointer"
-              >
-                عن قصة العائلة 🌸
-              </button>
-            )}
+            {Object.entries(INFORMATION_PAGES).map(([url, label]) => (
+              <a key={url} href={url} className="text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-amber-400 underline font-bold">
+                {label}
+              </a>
+            ))}
           </div>
 
           <div className="flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-300">

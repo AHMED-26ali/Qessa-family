@@ -13,6 +13,7 @@ export interface VideoStory {
   title: string;
   cleanTitle: string;
   description: string;
+  storyText?: string;
   category: StoryCategory;
   categoryNameAr: string;
   duration: string;
@@ -21,6 +22,8 @@ export interface VideoStory {
   ageRecommendation: '3+' | '5+' | '7+';
   moralLesson?: string;
   publishedDate?: string;
+  uploadDate?: string;
+  isoDuration?: string;
   keywords?: string[];
 }
 

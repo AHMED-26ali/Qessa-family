@@ -1,12 +1,12 @@
 import React from 'react';
 import { Play, Heart, Clock, Sparkles, Smile } from 'lucide-react';
+import { storyPath } from '../site';
 import { VideoStory } from '../types';
 
 interface VideoCardProps {
   video: VideoStory;
   isActive: boolean;
   isFavorite: boolean;
-  onSelect: (video: VideoStory) => void;
   onToggleFavorite: (id: string) => void;
   onSoundTrigger: () => void;
 }
@@ -15,16 +15,11 @@ export const VideoCard: React.FC<VideoCardProps> = ({
   video,
   isActive,
   isFavorite,
-  onSelect,
   onToggleFavorite,
   onSoundTrigger,
 }) => {
   return (
     <div
-      onClick={() => {
-        onSoundTrigger();
-        onSelect(video);
-      }}
       className={`group relative flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border-2 transition-all duration-300 cursor-pointer shadow-xs hover:shadow-xl transform hover:-translate-y-1 active:scale-[0.98] ${
         isActive
           ? 'border-amber-400 dark:border-amber-500 ring-4 ring-amber-400/30'
@@ -36,7 +31,8 @@ export const VideoCard: React.FC<VideoCardProps> = ({
         <img
           src={`https://img.youtube.com/vi/${video.id}/hqdefault.jpg`}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`;
+            const fallback = `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`;
+            if (e.currentTarget.src !== fallback) e.currentTarget.src = fallback;
           }}
           alt={video.cleanTitle}
           loading="lazy"
@@ -67,7 +63,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
             onSoundTrigger();
             onToggleFavorite(video.id);
           }}
-          className={`absolute top-1.5 left-1.5 w-11 h-11 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-75 shadow-md cursor-pointer ${
+          className={`absolute z-10 top-1.5 left-1.5 w-11 h-11 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-75 shadow-md cursor-pointer ${
             isFavorite
               ? 'bg-rose-500 text-white shadow-rose-500/40 scale-105'
               : 'bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:text-rose-500 hover:scale-105'
@@ -101,7 +97,9 @@ export const VideoCard: React.FC<VideoCardProps> = ({
           </div>
 
           <h4 className="text-xs sm:text-base font-black text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-rose-600 dark:group-hover:text-amber-400 transition-colors">
-            {video.cleanTitle}
+            <a href={storyPath(video.id)} onClick={onSoundTrigger} className="after:absolute after:inset-0 focus-visible:underline">
+              {video.cleanTitle}
+            </a>
           </h4>
         </div>
 
@@ -111,7 +109,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({
             {video.viewsApprox && video.viewsApprox !== '0' ? `${video.viewsApprox} مشاهدة` : 'حلقة حديثة'}
           </span>
           <span className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 font-black group-hover:translate-x-[-2px] transition-transform">
-            <span>تشغيل الحكاية</span>
+            <span>شاهد الحدوتة</span>
             <span>←</span>
           </span>
         </div>

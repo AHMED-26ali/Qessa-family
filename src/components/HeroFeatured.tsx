@@ -1,21 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Play, 
   Heart, 
   Sparkles, 
   Star, 
-  Clock, 
   Youtube, 
-  RotateCcw, 
   Share2, 
   Check, 
   Tv, 
   ExternalLink,
   Gamepad2,
   RefreshCw,
-  AlertCircle
 } from 'lucide-react';
 import { VideoStory } from '../types';
+import { playerUrl, storyPath } from '../site';
 import { PlayAlongGamePanel } from './games/PlayAlongGamePanel';
 
 interface HeroFeaturedProps {
@@ -41,27 +38,13 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
   onToggleFavorite,
   onOpenGamesWorld,
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [cinemaLights, setCinemaLights] = useState(false);
   const [isPlayAlongOpen, setIsPlayAlongOpen] = useState(false);
-  const [hasEmbedError, setHasEmbedError] = useState(false);
-
-  // Always reset playback state when switching stories
-  useEffect(() => {
-    setIsPlaying(false);
-    setHasEmbedError(false);
-  }, [currentVideo.id]);
-
-  const handleStartPlay = () => {
-    onSoundTrigger();
-    setHasEmbedError(false);
-    setIsPlaying(true);
-  };
 
   const handleShare = () => {
     onSoundTrigger();
-    const url = `https://www.youtube.com/watch?v=${currentVideo.id}`;
+    const url = new URL(storyPath(currentVideo.id), window.location.origin).href;
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
         title: currentVideo.cleanTitle,
@@ -74,12 +57,6 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
       setTimeout(() => setIsCopied(false), 2500);
     }
   };
-
-  // Privacy-Enhanced YouTube Embed URL:
-  // Using youtube-nocookie.com, rel=0, playsinline=1, enablejsapi=1, and origin
-  // Note: NO autoplay=1 when loading the page; only loads after user explicit click
-  const pageOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-  const officialYouTubeEmbedUrl = `https://www.youtube-nocookie.com/embed/${currentVideo.id}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(pageOrigin)}&rel=0&playsinline=1`;
 
   return (
     <section className={`relative overflow-hidden rounded-2xl sm:rounded-3xl transition-all duration-500 ${
@@ -179,83 +156,18 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
           
           {/* Video Player Column */}
           <div className={isPlayAlongOpen ? 'lg:col-span-7' : 'w-full'}>
-            <div className={`relative w-full aspect-video rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-2xl transition-all duration-500 border-2 ${
+            <div className={`relative w-full aspect-video min-h-[200px] rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-2xl transition-all duration-500 border-2 ${
               cinemaLights ? 'border-amber-400 shadow-amber-400/20' : 'border-white/90 dark:border-slate-800'
             }`}>
-              {isPlaying && !hasEmbedError ? (
-                <iframe
-                  src={officialYouTubeEmbedUrl}
-                  title={currentVideo.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  referrerPolicy="origin-when-cross-origin"
-                  className="w-full h-full border-0"
-                  onError={() => setHasEmbedError(true)}
-                />
-              ) : hasEmbedError ? (
-                <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-slate-900 text-white text-center gap-2">
-                  <AlertCircle className="w-10 h-10 text-amber-400" />
-                  <h4 className="text-sm sm:text-base font-black">تعذر تضمين هذا الفيديو داخل الصفحة</h4>
-                  <p className="text-xs text-slate-300 max-w-sm">
-                    يمكنك مشاهدة الحكاية مباشرة وبجودة عالية عبر تطبيق أو موقع يوتيوب الرسمي:
-                  </p>
-                  <a
-                    href={`https://www.youtube.com/watch?v=${currentVideo.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-md transition"
-                  >
-                    <Youtube className="w-4 h-4 fill-white" />
-                    <span>فتح الحكاية على YouTube</span>
-                  </a>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleStartPlay}
-                  aria-label={`تشغيل حكاية ${currentVideo.cleanTitle}`}
-                  className="relative block w-full h-full group cursor-pointer text-right"
-                >
-                  <img
-                    src={`https://img.youtube.com/vi/${currentVideo.id}/maxresdefault.jpg`}
-                    onError={(e) => {
-                      const image = e.currentTarget;
-                      // Avoid an infinite error loop if the fallback image is unavailable.
-                      image.onerror = null;
-                      image.src = `https://img.youtube.com/vi/${currentVideo.id}/hqdefault.jpg`;
-                    }}
-                    alt={currentVideo.cleanTitle}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="eager"
-                  />
-
-                  {/* Gradient shadow overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10 group-hover:from-black/75 transition-all" />
-
-                  {/* Large Child-Friendly Play Button */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-2">
-                    <span
-                      className="relative flex items-center justify-center w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 group-hover:scale-110 group-active:scale-95 text-white shadow-2xl transition-transform duration-300 ring-4 ring-white/60"
-                    >
-                      <Play className="w-8 h-8 sm:w-10 sm:h-10 fill-white ml-1" />
-                    </span>
-                    <span className="text-white font-black text-xs sm:text-sm bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-center">
-                      اضغط لبدء الحكاية الآن ▶
-                    </span>
-                  </div>
-
-                  {/* Badges on Thumbnail */}
-                  <div className="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 flex items-center gap-1.5 sm:gap-2">
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold bg-black/80 text-white backdrop-blur-md">
-                      <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400" />
-                      {currentVideo.duration}
-                    </span>
-                    <span className="px-2 py-1 rounded-xl text-[10px] sm:text-xs font-bold bg-rose-600 text-white shadow-md">
-                      رسوم متحركة للأطفال
-                    </span>
-                  </div>
-                </button>
-              )}
+              <iframe
+                key={currentVideo.id}
+                src={playerUrl(currentVideo.id)}
+                title={currentVideo.cleanTitle}
+                allow="encrypted-media; picture-in-picture; fullscreen"
+                allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="block w-full h-full border-0"
+              />
             </div>
           </div>
 
@@ -265,7 +177,6 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
               <PlayAlongGamePanel
                 isOpen={isPlayAlongOpen}
                 onClose={() => setIsPlayAlongOpen(false)}
-                isVideoPlaying={isPlaying}
                 onOpenFullGamesHub={onOpenGamesWorld}
               />
             </div>
@@ -300,18 +211,6 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
           {/* Action Buttons */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0 pt-1">
             
-            {/* Play Button if not already playing */}
-            {!isPlaying && (
-              <button
-                type="button"
-                onClick={handleStartPlay}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-black bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 hover:from-amber-600 hover:to-pink-600 text-white shadow-md active:scale-95 transition min-h-[44px] cursor-pointer"
-              >
-                <Play className="w-4 h-4 fill-white" />
-                <span>تشغيل الحكاية</span>
-              </button>
-            )}
-
             {/* Favorite Button */}
             <button
               type="button"
@@ -330,17 +229,24 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
               <span>{isFavorite ? 'في المفضلة ❤️' : 'المفضلة'}</span>
             </button>
 
+            <a
+              href={storyPath(currentVideo.id)}
+              className="flex items-center px-3 text-xs sm:text-sm font-bold text-rose-700 dark:text-rose-300 hover:underline min-h-[44px]"
+            >
+              اقرأ عن الحدوتة
+            </a>
+
             {/* Direct Official YouTube Link */}
             <a
               href={`https://www.youtube.com/watch?v=${currentVideo.id}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={onSoundTrigger}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-black bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-95 transition min-h-[44px] cursor-pointer"
+              className="flex items-center gap-1.5 px-3 text-xs sm:text-sm font-bold text-rose-700 dark:text-rose-300 hover:underline min-h-[44px]"
               title="مشاهدة على تطبيق أو موقع يوتيوب الرسمي"
             >
               <Youtube className="w-4 h-4 fill-white shrink-0" />
-              <span>مشاهدة على YouTube</span>
+              <span>فتح في YouTube</span>
               <ExternalLink className="w-3 h-3 opacity-80" />
             </a>
 
@@ -354,23 +260,6 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
             >
               {isCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
             </button>
-
-            {/* Restart Button if Playing */}
-            {isPlaying && (
-              <button
-                type="button"
-                onClick={() => {
-                  onSoundTrigger();
-                  setIsPlaying(false);
-                  setTimeout(() => setIsPlaying(true), 150);
-                }}
-                className="p-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center active:scale-90 cursor-pointer"
-                title="إعادة تشغيل الحكاية من الأول"
-                aria-label="إعادة التشغيل"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-            )}
 
           </div>
         </div>

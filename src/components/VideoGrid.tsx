@@ -10,7 +10,6 @@ interface VideoGridProps {
   favorites: string[];
   selectedCategory: StoryCategory;
   searchQuery: string;
-  onSelectVideo: (video: VideoStory) => void;
   onToggleFavorite: (id: string) => void;
   onSoundTrigger: () => void;
   onResetCategory: () => void;
@@ -46,7 +45,6 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
   favorites,
   selectedCategory,
   searchQuery,
-  onSelectVideo,
   onToggleFavorite,
   onSoundTrigger,
   onResetCategory,
@@ -120,7 +118,6 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                 video={video}
                 isActive={video.id === activeVideoId}
                 isFavorite={favorites.includes(video.id)}
-                onSelect={onSelectVideo}
                 onToggleFavorite={onToggleFavorite}
                 onSoundTrigger={onSoundTrigger}
               />
@@ -178,7 +175,6 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                 video={video}
                 isActive={video.id === activeVideoId}
                 isFavorite={favorites.includes(video.id)}
-                onSelect={onSelectVideo}
                 onToggleFavorite={onToggleFavorite}
                 onSoundTrigger={onSoundTrigger}
               />

@@ -629,6 +629,7 @@ async function fetchViaYouTubeDataApi(
 
       const publishedAt: string =
         snippet.publishedAt || '';
+      const durationIso = detail.contentDetails?.duration || '';
 
       const curated = CURATED_METADATA[vidId] || {};
 
@@ -641,10 +642,9 @@ async function fetchViaYouTubeDataApi(
           curated.cleanTitle ||
           cleanVideoTitle(rawTitle),
 
-        description:
-          curated.description ||
-          description.slice(0, 180) +
-            (description.length > 180 ? '...' : ''),
+        description: curated.description || description.slice(0, 180).trimEnd() +
+          (description.length > 180 ? '…' : ''),
+        storyText: description.trim() || undefined,
 
         category:
           curated.category ||
@@ -654,11 +654,9 @@ async function fetchViaYouTubeDataApi(
           curated.categoryNameAr ||
           deduced.categoryNameAr,
 
-        duration:
-          curated.duration ||
-          formatISODuration(
-            detail.contentDetails?.duration || ''
-          ),
+        duration: durationIso ? formatISODuration(durationIso) : (curated.duration || ''),
+        isoDuration: durationIso || undefined,
+        uploadDate: Number.isFinite(Date.parse(publishedAt)) ? publishedAt : undefined,
 
         viewsApprox: formatViewsArabic(
           detail.statistics?.viewCount || '0'

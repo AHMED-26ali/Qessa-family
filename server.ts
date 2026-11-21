@@ -7,6 +7,9 @@ import fs from 'node:fs';
 import videosHandler from './api/videos.js';
 import refreshHandler from './api/refresh.js';
 import sitemapHandler from './api/sitemap.js';
+import adsHandler from './api/ads.js';
+import { servePage } from './api/page.js';
+import { VIDEO_ID, categoryPath, isPublicCategory, storyPath } from './src/site.js';
 
 // Load local environment variables when supported.
 try {
@@ -64,6 +67,18 @@ async function startServer() {
     });
   });
 
+  app.get('/', (req, res, next) => {
+    const { v, category } = req.query;
+    if (typeof v === 'string' && VIDEO_ID.test(v)) return res.redirect(308, storyPath(v));
+    if (typeof category === 'string' && isPublicCategory(category)) return res.redirect(308, categoryPath(category));
+    next();
+  });
+
+  app.all('/ads.txt', adsHandler);
+  app.all('/stories/:id', (req, res) => servePage(req, res, 'story', req.params.id));
+  app.all('/categories/:id', (req, res) => servePage(req, res, 'category', req.params.id));
+  app.all(['/about', '/privacy', '/contact'], (req, res) => servePage(req, res, 'info', req.path.slice(1)));
+
   // ==========================================
   // Development Server
   // ==========================================
@@ -92,11 +107,6 @@ async function startServer() {
     if (fs.existsSync(indexPath)) {
       app.use(express.static(distPath));
 
-      // Express 5-compatible SPA fallback.
-      // Keeps React client-side routes working.
-      app.get('/{*splat}', (_req, res) => {
-        res.sendFile(indexPath);
-      });
     } else {
       console.error(
         '[Qessa Family] Production build not found:',

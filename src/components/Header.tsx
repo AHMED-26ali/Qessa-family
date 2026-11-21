@@ -20,7 +20,6 @@ interface HeaderProps {
   onSelectVideo?: (video: VideoStory) => void;
   onSearchSubmit?: () => void;
   onOpenWelcome?: () => void;
-  onOpenPrivacy?: () => void;
   onOpenGames?: () => void;
 }
 
@@ -40,7 +39,6 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectVideo,
   onSearchSubmit,
   onOpenWelcome,
-  onOpenPrivacy,
   onOpenGames,
 }) => {
   const mobileInputRef = useRef<HTMLInputElement>(null);
