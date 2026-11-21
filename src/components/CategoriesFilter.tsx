@@ -23,7 +23,7 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({
       <div className="flex items-center justify-between mb-2.5 px-1">
         <h3 className="text-sm sm:text-lg font-black text-slate-800 dark:text-amber-100 flex items-center gap-1.5 sm:gap-2">
           <span>تصنيفات الحكايات</span>
-          <span className="text-[11px] font-bold text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-full border border-rose-200 dark:border-rose-900">
+          <span className="text-[11px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-full border border-rose-200 dark:border-rose-900">
             اختر نوع الحكاية 🎈
           </span>
         </h3>

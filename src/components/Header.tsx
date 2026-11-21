@@ -140,6 +140,8 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 via-rose-400 to-indigo-500 shadow-md transform transition duration-300 group-hover:scale-105 group-hover:rotate-3">
                 <img
                   src="/brand-logo.webp"
+                  width="52"
+                  height="52"
                   alt="لوجو قصة العائلة"
                   className="w-full h-full object-cover rounded-full bg-slate-900"
                 />
@@ -152,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <h1 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-amber-100 tracking-tight flex items-center gap-1 font-['Baloo_Bhaijaan_2'] leading-none">
+                <h1 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-amber-100 tracking-tight flex items-center gap-1 leading-none">
                   <span>قصة العائلة</span>
                 </h1>
                 <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">

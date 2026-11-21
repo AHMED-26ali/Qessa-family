@@ -19,48 +19,25 @@ const STORAGE_KEYS = {
   SOUND_ENABLED: 'qessa_family_sound_v2',
 };
 
+function readPreference(key: string): unknown {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? 'null');
+  } catch {
+    return null;
+  }
+}
+
+function savePreference(key: string, value: boolean | string[]) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {}
+}
+
 export default function App() {
-  // 1. Night Mode State (Bedtime mode for comfortable eyes)
-  const [isNightMode, setIsNightMode] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEYS.NIGHT_MODE);
-      if (saved !== null) {
-        try {
-          return JSON.parse(saved);
-        } catch {}
-      }
-      const hour = new Date().getHours();
-      return hour >= 20 || hour < 6;
-    }
-    return false;
-  });
-
-  // 2. Sound Effects Enabled State
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED);
-      if (saved !== null) {
-        try {
-          return JSON.parse(saved);
-        } catch {}
-      }
-    }
-    return true;
-  });
-
-  // 3. Favorites State (persisted in localStorage)
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) return parsed;
-        }
-      } catch {}
-    }
-    return [];
-  });
+  const [isNightMode, setIsNightMode] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   // The channel feed supplies the featured upload. The bundled archive has no live order.
   const [videos, setVideos] = useState<VideoStory[]>(INITIAL_VIDEOS);
@@ -77,31 +54,33 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedText, setLastSyncedText] = useState<string>('');
 
-  // Sync Night Mode Class to <html>
   useEffect(() => {
-    if (isNightMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    const hour = new Date().getHours();
+    const nightMode = readPreference(STORAGE_KEYS.NIGHT_MODE);
+    const sound = readPreference(STORAGE_KEYS.SOUND_ENABLED);
+    const savedFavorites = readPreference(STORAGE_KEYS.FAVORITES);
+
+    setIsNightMode(typeof nightMode === 'boolean' ? nightMode : hour >= 20 || hour < 6);
+    setSoundEnabled(typeof sound === 'boolean' ? sound : true);
+    if (Array.isArray(savedFavorites)) {
+      setFavorites(savedFavorites.filter((id): id is string => typeof id === 'string'));
     }
-    try {
-      localStorage.setItem(STORAGE_KEYS.NIGHT_MODE, JSON.stringify(isNightMode));
-    } catch {}
-  }, [isNightMode]);
+    setPreferencesLoaded(true);
+  }, []);
 
-  // Sync Sound Preference
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, JSON.stringify(soundEnabled));
-    } catch {}
-  }, [soundEnabled]);
+    if (!preferencesLoaded) return;
+    document.documentElement.classList.toggle('dark', isNightMode);
+    savePreference(STORAGE_KEYS.NIGHT_MODE, isNightMode);
+  }, [isNightMode, preferencesLoaded]);
 
-  // Sync Favorites to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
-    } catch {}
-  }, [favorites]);
+    if (preferencesLoaded) savePreference(STORAGE_KEYS.SOUND_ENABLED, soundEnabled);
+  }, [soundEnabled, preferencesLoaded]);
+
+  useEffect(() => {
+    if (preferencesLoaded) savePreference(STORAGE_KEYS.FAVORITES, favorites);
+  }, [favorites, preferencesLoaded]);
 
   const handleToggleFavorite = (videoId: string) => {
     setFavorites((prev) => {
@@ -327,39 +306,25 @@ export default function App() {
             </div>
           </div>
           <div className="home-story-decoration" aria-hidden="true">
-            <img src="/brand-logo.webp" width="136" height="136" alt="" />
+            <img src="/brand-logo.webp" width="136" height="136" fetchPriority="high" alt="" />
             <span className="home-story-star">✦</span>
             <span className="home-story-star second">✦</span>
           </div>
         </section>
 
         {/* 2. Hero Featured Story & Player (With Play-Along Option) */}
-        {currentVideo ? (
-          <HeroFeatured
-            currentVideo={currentVideo}
-            onSoundTrigger={triggerCutePop}
-            isLatestUpload={isLatestUpload}
-            onRefreshLatest={handleRefreshStories}
-            isSyncing={isSyncing}
-            lastSyncedText={lastSyncedText}
-            isFavorite={favorites.includes(currentVideo.id)}
-            onToggleFavorite={handleToggleFavorite}
-            onOpenGamesWorld={handleOpenGames}
-          />
-        ) : (
-          <section aria-label="أحدث حدوتة" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-            <p role="status">
-              {catalogSource === 'loading'
-                ? 'جاري جلب أحدث حدوتة من القناة…'
-                : 'تعذّر جلب أحدث حدوتة دلوقتي. الحواديت المحفوظة موجودة في المكتبة تحت.'}
-            </p>
-            {catalogSource !== 'loading' && (
-              <button type="button" onClick={handleRefreshStories} disabled={isSyncing} className="min-h-11 mt-2 font-bold underline">
-                {isSyncing ? 'جاري التحديث…' : 'تحديث الحواديت'}
-              </button>
-            )}
-          </section>
-        )}
+        <HeroFeatured
+          currentVideo={currentVideo}
+          isLoading={catalogSource === 'loading'}
+          onSoundTrigger={triggerCutePop}
+          isLatestUpload={isLatestUpload}
+          onRefreshLatest={handleRefreshStories}
+          isSyncing={isSyncing}
+          lastSyncedText={lastSyncedText}
+          isFavorite={currentVideo ? favorites.includes(currentVideo.id) : false}
+          onToggleFavorite={handleToggleFavorite}
+          onOpenGamesWorld={handleOpenGames}
+        />
 
         {/* 3. 🎮 عالم ألعاب قصة العائلة (6 Interactive Games Hub) */}
         <GamesHub

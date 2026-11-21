@@ -25,6 +25,9 @@ export const ChannelBanner: React.FC<ChannelBannerProps> = ({
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full p-0.5 sm:p-1 bg-white shadow-xl shrink-0">
                 <img
                   src="/brand-logo.webp"
+                  width="96"
+                  height="96"
+                  loading="lazy"
                   alt="شعار قصة العائلة"
                   className="w-full h-full object-cover rounded-full"
                 />
@@ -85,7 +88,7 @@ export const ChannelBanner: React.FC<ChannelBannerProps> = ({
         {/* Bottom Links and Credits */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 text-center sm:text-right border-t border-slate-200/80 dark:border-slate-800 pt-4">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-            <span>جميع الحقوق محفوظة لقناة <strong>قصة العائلة | Qessa family</strong> © {new Date().getFullYear()}</span>
+            <span>جميع الحقوق محفوظة لقناة <strong>قصة العائلة | Qessa family</strong> © <span suppressHydrationWarning>{new Date().getFullYear()}</span></span>
             
             {Object.entries(INFORMATION_PAGES).map(([url, label]) => (
               <a key={url} href={url} className="text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-amber-400 underline font-bold">
