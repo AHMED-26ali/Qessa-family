@@ -64,14 +64,12 @@ export default function App() {
     return [];
   });
 
-  // 4. Videos List & Latest Video (newest episode appears first)
-  const [videos, setVideos] = useState<VideoStory[]>(() => {
-    return INITIAL_VIDEOS;
-  });
-
-  const [currentVideo, setCurrentVideo] = useState<VideoStory>(() => {
-    return INITIAL_VIDEOS[0];
-  });
+  // The channel feed supplies the featured upload. The bundled archive has no live order.
+  const [videos, setVideos] = useState<VideoStory[]>(INITIAL_VIDEOS);
+  const [catalogSource, setCatalogSource] = useState('loading');
+  const currentVideo = catalogSource === 'loading' || catalogSource === 'fallback'
+    ? undefined
+    : videos[0];
 
   // 5. Filtering & Search State
   const [selectedCategory, setSelectedCategory] = useState<StoryCategory>('all');
@@ -144,13 +142,13 @@ export default function App() {
         if (!isMounted || !result.videos.length) return;
 
         setVideos(result.videos);
+        setCatalogSource(result.source);
 
         // Offline / bundled data can have no known synchronization time.
         if (result.lastSynced && !Number.isNaN(Date.parse(result.lastSynced))) {
           setLastSyncedText(new Date(result.lastSynced).toLocaleTimeString('ar-EG'));
         }
 
-        setCurrentVideo(result.videos[0]);
       } catch (e) {
         console.warn('Initial videos load warning:', e);
       }
@@ -177,7 +175,7 @@ export default function App() {
       const res = await refreshChannelVideos();
       if (res.success && res.videos.length > 0) {
         setVideos(res.videos);
-        setCurrentVideo(res.videos[0]);
+        setCatalogSource('live');
         setLastSyncedText(new Date().toLocaleTimeString('ar-EG'));
 
         triggerSparkle();
@@ -224,9 +222,6 @@ export default function App() {
   const handleGoHome = () => {
     setSelectedCategory('all');
     setSearchQuery('');
-    if (videos.length > 0) {
-      setCurrentVideo(videos[0]);
-    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -257,7 +252,7 @@ export default function App() {
   // The newest upload is already in the main player. Show the previous
   // uploads in the regular stories grid, with no duplicate featured video.
   // Favorites and searches can still find the newest story when requested.
-  const libraryVideos = useMemo(() => videos.slice(1), [videos]);
+  const libraryVideos = useMemo(() => currentVideo ? videos.slice(1) : videos, [videos, currentVideo]);
 
   // Filtered stories based on category & search query
   const filteredVideos = useMemo(() => {
@@ -303,22 +298,22 @@ export default function App() {
       favorites: favorites.length,
     };
 
-    libraryVideos.forEach((v) => {
+    videos.forEach((v) => {
       if (counts[v.category] !== undefined) {
         counts[v.category]++;
       }
     });
 
     return counts;
-  }, [libraryVideos, favorites]);
+  }, [videos, libraryVideos, favorites]);
 
   // Featured videos for top shelf (excluding currently playing story)
   const featuredVideos = useMemo(() => {
-    return libraryVideos.filter((v) => v.isFeatured && v.id !== currentVideo.id);
+    return libraryVideos.filter((v) => v.isFeatured && v.id !== currentVideo?.id);
   }, [libraryVideos, currentVideo]);
 
   // Is current video the newest episode?
-  const isLatestUpload = videos.length > 0 && currentVideo.id === videos[0].id;
+  const isLatestUpload = catalogSource === 'live' || catalogSource === 'api' || catalogSource === 'scraper';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-300 pb-20 md:pb-0">
@@ -350,17 +345,32 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3 sm:py-6 space-y-6 sm:space-y-10">
         
         {/* 2. Hero Featured Story & Player (With Play-Along Option) */}
-        <HeroFeatured
-          currentVideo={currentVideo}
-          onSoundTrigger={triggerCutePop}
-          isLatestUpload={isLatestUpload}
-          onRefreshLatest={handleRefreshStories}
-          isSyncing={isSyncing}
-          lastSyncedText={lastSyncedText}
-          isFavorite={favorites.includes(currentVideo.id)}
-          onToggleFavorite={handleToggleFavorite}
-          onOpenGamesWorld={handleOpenGames}
-        />
+        {currentVideo ? (
+          <HeroFeatured
+            currentVideo={currentVideo}
+            onSoundTrigger={triggerCutePop}
+            isLatestUpload={isLatestUpload}
+            onRefreshLatest={handleRefreshStories}
+            isSyncing={isSyncing}
+            lastSyncedText={lastSyncedText}
+            isFavorite={favorites.includes(currentVideo.id)}
+            onToggleFavorite={handleToggleFavorite}
+            onOpenGamesWorld={handleOpenGames}
+          />
+        ) : (
+          <section aria-label="أحدث حدوتة" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+            <p role="status">
+              {catalogSource === 'loading'
+                ? 'جاري جلب أحدث حدوتة من القناة…'
+                : 'تعذّر جلب أحدث حدوتة دلوقتي. الحواديت المحفوظة موجودة في المكتبة تحت.'}
+            </p>
+            {catalogSource !== 'loading' && (
+              <button type="button" onClick={handleRefreshStories} disabled={isSyncing} className="min-h-11 mt-2 font-bold underline">
+                {isSyncing ? 'جاري التحديث…' : 'تحديث الحواديت'}
+              </button>
+            )}
+          </section>
+        )}
 
         {/* 3. 🎮 عالم ألعاب قصة العائلة (6 Interactive Games Hub) */}
         <GamesHub
@@ -385,7 +395,7 @@ export default function App() {
         <VideoGrid
           videos={filteredVideos}
           featuredVideos={featuredVideos}
-          activeVideoId={currentVideo.id}
+          activeVideoId={currentVideo?.id ?? ''}
           favorites={favorites}
           selectedCategory={selectedCategory}
           searchQuery={searchQuery}

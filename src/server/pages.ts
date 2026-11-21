@@ -73,6 +73,9 @@ export function renderPage({
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<meta name="google-adsense-account" content="ca-pub-7000140651360496">
+<script>(window.adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7000140651360496" crossorigin="anonymous"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${safeTitle}</title>
 <meta name="description" content="${safeDescription}">
@@ -182,7 +185,7 @@ const informationContent = {
     <h2>تشغيل الفيديوهات</h2>
     <p>الفيديوهات بتتعرض عبر مشغّل يوتيوب في وضع الخصوصية المحسّنة. يوتيوب بيستقبل معلومات الاتصال اللازمة لتشغيل الفيديو. لمزيد من التفاصيل، راجعوا <a href="https://policies.google.com/privacy?hl=ar">سياسة خصوصية Google</a>.</p>
     <h2>الإعلانات</h2>
-    <p>لو فعّلنا Google AdSense بعد الموافقة، ممكن Google ومزوّدو الإعلانات يستخدموا ملفات تعريف الارتباط أو عنوان IP أو معرّفات مشابهة لعرض الإعلانات وقياسها. الموقع موجّه للأطفال، والإعلانات فيه تكون من غير تخصيص مبني على الاهتمامات. اقرأوا <a href="https://policies.google.com/technologies/partner-sites?hl=ar">إزاي Google بتستخدم البيانات من المواقع الشريكة</a>.</p>
+    <p>بنستخدم كود Google AdSense لإثبات ملكية الموقع، وطلبات الإعلانات حاليًا متوقفة. لو فعّلنا الإعلانات بعد الموافقة، ممكن Google ومزوّدو الإعلانات يستخدموا ملفات تعريف الارتباط أو عنوان IP أو معرّفات مشابهة لعرض الإعلانات وقياسها. الموقع موجّه للأطفال، والإعلانات فيه تكون من غير تخصيص مبني على الاهتمامات. اقرأوا <a href="https://policies.google.com/technologies/partner-sites?hl=ar">إزاي Google بتستخدم البيانات من المواقع الشريكة</a>.</p>
     <h2>استفسارات أولياء الأمور</h2>
     <p>لو عندكم سؤال عن الخصوصية، استخدموا <a href="/contact">صفحة التواصل</a>.</p>`,
   '/contact': `<p>الصفحة دي لأولياء الأمور. لو عندكم سؤال أو ملاحظة على حدوتة أو واجهتم مشكلة في التشغيل، ابعتوا اسم الحدوتة ورابط صفحتها في رسالة لصفحة القناة الرسمية.</p>

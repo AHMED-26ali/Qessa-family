@@ -82,7 +82,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md">
                 <Star className="w-3.5 h-3.5 fill-white shrink-0" />
-                <span>الحكاية المختارة 🌟</span>
+                <span>من آخر تحديث محفوظ</span>
               </span>
             )}
 

@@ -83,10 +83,6 @@
       "destination": "/api/sitemap"
     },
     {
-      "source": "/ads.txt",
-      "destination": "/api/ads"
-    },
-    {
       "source": "/stories/:id",
       "destination": "/api/page?view=story&id=:id"
     },

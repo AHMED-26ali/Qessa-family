@@ -7,7 +7,6 @@ import fs from 'node:fs';
 import videosHandler from './api/videos.js';
 import refreshHandler from './api/refresh.js';
 import sitemapHandler from './api/sitemap.js';
-import adsHandler from './api/ads.js';
 import { servePage } from './api/page.js';
 import { VIDEO_ID, categoryPath, isPublicCategory, storyPath } from './src/site.js';
 
@@ -74,7 +73,6 @@ async function startServer() {
     next();
   });
 
-  app.all('/ads.txt', adsHandler);
   app.all('/stories/:id', (req, res) => servePage(req, res, 'story', req.params.id));
   app.all('/categories/:id', (req, res) => servePage(req, res, 'category', req.params.id));
   app.all(['/about', '/privacy', '/contact'], (req, res) => servePage(req, res, 'info', req.path.slice(1)));
