@@ -142,7 +142,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                       ? `نتائج البحث عن: "${searchQuery}"`
                       : 'مكتبة الحكايات والكرتون'}
                 </span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 font-bold">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-bold">
                   {uniqueVideos.length} حكاية
                 </span>
               </h3>
