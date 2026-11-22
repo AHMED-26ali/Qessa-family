@@ -37,3 +37,43 @@ test('4. Lookup by video ID works for direct links', async () => {
   assert.ok(video, 'Should find video opSJHrJX3mc');
   assert.equal(video?.id, 'opSJHrJX3mc');
 });
+
+test('Regular uploads keep short-duration stories and exclude known clips', async (t) => {
+  const fullStoryId = 'dwjIpE3v2kY';
+  const shortClipId = '490MWmufuIA';
+  const savedKey = process.env.YOUTUBE_API_KEY;
+  process.env.YOUTUBE_API_KEY = 'test-key';
+  t.after(() => {
+    if (savedKey === undefined) delete process.env.YOUTUBE_API_KEY;
+    else process.env.YOUTUBE_API_KEY = savedKey;
+  });
+
+  const requests: URL[] = [];
+  t.mock.method(globalThis, 'fetch', async (input: string) => {
+    const url = new URL(input);
+    requests.push(url);
+
+    if (url.pathname.endsWith('/playlistItems')) {
+      return Response.json({
+        items: [shortClipId, fullStoryId].map((videoId) => ({ contentDetails: { videoId } })),
+      });
+    }
+
+    return Response.json({
+      items: [shortClipId, fullStoryId].map((id) => ({
+        id,
+        snippet: { title: 'حكاية من القناة', channelId: OFFICIAL_CHANNEL_ID },
+        contentDetails: { duration: 'PT1M45S' },
+        status: { privacyStatus: 'public', embeddable: true },
+      })),
+    });
+  });
+
+  const result = await getChannelVideos(true);
+  assert.equal(requests[0]?.searchParams.get('playlistId'), `UULF${OFFICIAL_CHANNEL_ID.slice(2)}`);
+  assert.equal(result.source, 'api');
+  assert.deepEqual(result.videos.map(({ id }) => id), [fullStoryId]);
+  assert.equal(result.videos[0]?.duration, '1:45');
+  assert.equal(result.videos[0]?.isFeatured, true);
+  assert.equal(await getVideoById(shortClipId), null);
+});

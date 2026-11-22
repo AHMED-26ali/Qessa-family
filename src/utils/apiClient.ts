@@ -2,7 +2,7 @@
 import type { VideoStory } from '../types';
 import { INITIAL_VIDEOS } from '../data/videos';
 
-const OFFLINE_CACHE_KEY = 'qessa_api_videos_offline_v2';
+const OFFLINE_CACHE_KEY = 'qessa_full_videos_offline_v3';
 
 export interface SyncStatus {
   state: 'idle' | 'loading' | 'success' | 'error';
@@ -138,8 +138,8 @@ export async function fetchVideosFromApi(
 ): Promise<VideoFetchResult> {
   try {
     const url = forceRefresh
-      ? '/api/videos?refresh=true'
-      : '/api/videos';
+      ? '/api/videos?format=full&refresh=true'
+      : '/api/videos?format=full';
 
     const response = await fetch(url, {
       method: 'GET',

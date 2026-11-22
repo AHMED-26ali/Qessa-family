@@ -18,8 +18,9 @@ export const OFFICIAL_CHANNEL_ID =
     ? configuredChannelId
     : DEFAULT_CHANNEL_ID;
 
-export const OFFICIAL_UPLOADS_PLAYLIST_ID =
-  `UU${OFFICIAL_CHANNEL_ID.slice(2)}`;
+// YouTube's channel playlist for regular uploads excludes Shorts and livestreams.
+const OFFICIAL_FULL_VIDEOS_PLAYLIST_ID =
+  `UULF${OFFICIAL_CHANNEL_ID.slice(2)}`;
 
 interface CacheEntry {
   videos: VideoStory[];
@@ -464,7 +465,7 @@ function normalizeVideos(
   const seen = new Set<string>();
 
   const unique = videos.filter((video) => {
-    if (!video.id || seen.has(video.id)) {
+    if (!video.id || storyNotes[video.id]?.fullVideoId || seen.has(video.id)) {
       return false;
     }
 
@@ -486,7 +487,7 @@ function normalizeVideos(
 }
 
 /**
- * Fetch every page of the channel's uploads playlist.
+ * Fetch every page of the channel's regular videos playlist.
  * YouTube API returns at most 50 videos per page.
  */
 async function fetchViaYouTubeDataApi(
@@ -502,7 +503,7 @@ async function fetchViaYouTubeDataApi(
     do {
       const params = new URLSearchParams({
         part: 'snippet,contentDetails',
-        playlistId: OFFICIAL_UPLOADS_PLAYLIST_ID,
+        playlistId: OFFICIAL_FULL_VIDEOS_PLAYLIST_ID,
         maxResults: '50',
         key: apiKey,
       });
@@ -608,7 +609,7 @@ async function fetchViaYouTubeDataApi(
 
     const result: VideoStory[] = [];
 
-    // Preserve uploads-playlist order: newest first.
+    // Preserve the playlist order: newest first.
     for (const vidId of videoIds) {
       const detail = videoDetailsMap.get(vidId);
 
@@ -758,20 +759,18 @@ async function fetchViaChannelScraper(): Promise<
         ?.twoColumnBrowseResultsRenderer
         ?.tabs || [];
 
-    const videosTab =
-      tabs.find(
-        (t: any) =>
-          t?.tabRenderer?.title === 'الفيديوهات' ||
-          t?.tabRenderer?.title === 'Videos' ||
-          t?.tabRenderer?.selected === true
-      ) ||
-      tabs[1] ||
-      tabs[0];
+    const videosTab = tabs
+      .map((tab: any) => tab?.tabRenderer)
+      .find((tab: any) => {
+        const path = tab?.endpoint?.commandMetadata?.webCommandMetadata?.url?.split('?')[0];
+        return tab?.selected === true &&
+          (path ? path.endsWith('/videos') : ['Videos', 'الفيديوهات'].includes(tab.title));
+      });
 
     const contents =
-      videosTab?.tabRenderer?.content
+      videosTab?.content
         ?.richGridRenderer?.contents ||
-      videosTab?.tabRenderer?.content
+      videosTab?.content
         ?.sectionListRenderer?.contents ||
       [];
 
@@ -784,13 +783,18 @@ async function fetchViaChannelScraper(): Promise<
     ) {
       const item = contents[index];
 
-      const lvm =
-        item?.richItemRenderer?.content
-          ?.lockupViewModel;
+      const content = item?.richItemRenderer?.content;
+      const lockup = content?.lockupViewModel;
+      const lvm = lockup?.contentType === 'LOCKUP_CONTENT_TYPE_VIDEO' ? lockup : undefined;
+      const vr = content?.videoRenderer;
+      const navigation = lvm?.rendererContext?.commandContext?.onTap?.innertubeCommand ??
+        vr?.navigationEndpoint;
+      const path = navigation?.commandMetadata?.webCommandMetadata?.url;
 
-      const vr =
-        item?.richItemRenderer?.content
-          ?.videoRenderer;
+      if (navigation?.reelWatchEndpoint || path?.includes('/shorts/') ||
+        vr?.thumbnailOverlays?.some((overlay: any) => overlay?.thumbnailOverlayTimeStatusRenderer?.style === 'SHORTS')) {
+        continue;
+      }
 
       let videoId = '';
       let rawTitle = '';

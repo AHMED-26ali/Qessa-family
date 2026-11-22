@@ -1,7 +1,8 @@
 import type { Request, Response } from 'express';
-import { isPublicCategory, INFORMATION_PAGES, STORY_LIBRARY_PATH, VIDEO_ID } from '../src/site.js';
+import { isPublicCategory, INFORMATION_PAGES, STORY_LIBRARY_PATH, storyPath, VIDEO_ID } from '../src/site.js';
 import { renderCategory, renderInformation, renderLibrary, renderPage, renderStory } from '../src/server/pages.js';
 import { getChannelVideos } from '../src/server/youtubeService.js';
+import { storyNotes } from '../src/data/storyNotes.js';
 
 export async function servePage(req: Request, res: Response, view: string, id = '') {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -36,6 +37,12 @@ export async function servePage(req: Request, res: Response, view: string, id = 
     if (isStory) {
       const video = videos.find((item) => item.id === id);
       if (video) return res.send(renderStory(video, videos));
+
+      const fullVideoId = storyNotes[id]?.fullVideoId;
+      if (fullVideoId && videos.some((item) => item.id === fullVideoId)) {
+        return res.redirect(308, storyPath(fullVideoId));
+      }
+
       retryable = source === 'fallback';
     } else if (isPublicCategory(id)) {
       return res.send(renderCategory(id, videos.filter((video) => video.category === id)));
