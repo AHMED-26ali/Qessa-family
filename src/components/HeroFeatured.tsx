@@ -13,7 +13,7 @@ import {
   Play,
 } from 'lucide-react';
 import { VideoStory } from '../types';
-import { playerUrl, storyPath, STORY_LIBRARY_PATH } from '../site';
+import { playerUrl, storyPath, STORY_LIBRARY_PATH, thumbnailUrl } from '../site';
 import { PlayAlongGamePanel } from './games/PlayAlongGamePanel';
 
 interface HeroFeaturedProps {
@@ -172,12 +172,23 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
                 <button
                   type="button"
                   onClick={() => setOpenVideoId(currentVideo.id)}
-                  className="absolute inset-0 flex w-full flex-col items-center justify-center gap-3 bg-slate-950 p-4 text-center font-bold text-slate-100 hover:bg-slate-900 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-amber-300 cursor-pointer"
+                  className="group absolute inset-0 flex w-full flex-col items-center justify-center gap-3 bg-slate-950 p-4 text-center font-bold text-white focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-amber-300 cursor-pointer"
                 >
-                  <span className="grid size-12 place-items-center rounded-full bg-amber-300 text-slate-950">
+                  <img
+                    key={currentVideo.id}
+                    src={thumbnailUrl(currentVideo.id)}
+                    width={480}
+                    height={360}
+                    alt=""
+                    decoding="async"
+                    fetchPriority="high"
+                    className="pointer-events-none absolute inset-x-0 top-1/2 aspect-video w-full -translate-y-1/2 object-cover"
+                    onError={({ currentTarget }) => { currentTarget.hidden = true; }}
+                  />
+                  <span className="relative grid size-12 place-items-center rounded-full bg-amber-300 text-slate-950 shadow-lg group-hover:bg-amber-200">
                     <Play className="size-5 fill-current" aria-hidden="true" />
                   </span>
-                  <span>افتح مشغّل يوتيوب</span>
+                  <span className="relative rounded-full bg-slate-950/90 px-3 py-1">افتح مشغّل يوتيوب</span>
                 </button>
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950 p-4 text-center text-sm font-bold text-slate-200">
