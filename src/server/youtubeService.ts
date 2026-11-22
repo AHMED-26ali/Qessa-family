@@ -28,9 +28,18 @@ interface CacheEntry {
   source: 'api' | 'scraper' | 'fallback';
 }
 
-let memoryCache: CacheEntry | null = null;
+type ChannelVideoResult = {
+  videos: VideoStory[];
+  source: 'api' | 'scraper' | 'fallback';
+  lastSynced: string;
+  isCached: boolean;
+  channelId: string;
+};
 
-const CACHE_TTL_MS = 10 * 60 * 1000;
+let memoryCache: CacheEntry | null = null;
+let pendingSync: Promise<ChannelVideoResult> | null = null;
+
+const CACHE_TTL_MS = 60_000;
 const REFRESH_COOLDOWN_MS = 25 * 1000;
 
 let lastManualRefreshTime = 0;
@@ -948,13 +957,9 @@ async function fetchViaChannelScraper(): Promise<
  */
 export async function getChannelVideos(
   forceRefresh = false
-): Promise<{
-  videos: VideoStory[];
-  source: 'api' | 'scraper' | 'fallback';
-  lastSynced: string;
-  isCached: boolean;
-  channelId: string;
-}> {
+): Promise<ChannelVideoResult> {
+  if (pendingSync) return pendingSync;
+
   const now = Date.now();
 
   // Manual refresh cooldown.
@@ -999,6 +1004,13 @@ export async function getChannelVideos(
     lastManualRefreshTime = now;
   }
 
+  pendingSync = syncChannelVideos().finally(() => {
+    pendingSync = null;
+  });
+  return pendingSync;
+}
+
+async function syncChannelVideos(): Promise<ChannelVideoResult> {
   // Primary source: Official YouTube API.
   const apiKey =
     process.env.YOUTUBE_API_KEY?.trim();

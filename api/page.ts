@@ -30,7 +30,7 @@ export async function servePage(req: Request, res: Response, view: string, id = 
     const { videos, source } = await getChannelVideos();
     res.setHeader('Cache-Control', source === 'fallback' || query
       ? 'no-store'
-      : 'public, s-maxage=300, stale-while-revalidate=600');
+      : 'public, s-maxage=60, stale-while-revalidate=30');
 
     if (isLibrary) return res.send(renderLibrary(videos, query));
 

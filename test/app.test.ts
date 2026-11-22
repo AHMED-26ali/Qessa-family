@@ -69,7 +69,9 @@ test('Regular uploads keep short-duration stories and exclude known clips', asyn
     });
   });
 
-  const result = await getChannelVideos(true);
+  const [result, concurrent] = await Promise.all([getChannelVideos(true), getChannelVideos(true)]);
+  assert.strictEqual(concurrent, result);
+  assert.equal(requests.length, 2);
   assert.equal(requests[0]?.searchParams.get('playlistId'), `UULF${OFFICIAL_CHANNEL_ID.slice(2)}`);
   assert.equal(result.source, 'api');
   assert.deepEqual(result.videos.map(({ id }) => id), [fullStoryId]);

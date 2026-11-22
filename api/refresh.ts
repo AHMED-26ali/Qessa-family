@@ -89,6 +89,7 @@ export default async function handler(
       isCached: result.isCached,
 
       total: videos.length,
+      videos: videos.map(({ storyText: _storyText, ...video }) => video),
 
       latestVideo: latestVideo?.cleanTitle ?? null,
       latestVideoId: latestVideo?.id ?? null,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Header } from './components/Header';
 import { HeroFeatured } from './components/HeroFeatured';
 import { CategoriesFilter } from './components/CategoriesFilter';
@@ -10,7 +10,7 @@ import { INITIAL_VIDEOS } from './data/videos';
 import { VideoStory, StoryCategory } from './types';
 import { playCutePop, playSparkleChime } from './utils/audio';
 import { matchesSearchQuery } from './utils/search';
-import { fetchVideosFromApi, refreshChannelVideos } from './utils/apiClient';
+import { fetchVideosFromApi, refreshChannelVideos, type VideoFetchResult } from './utils/apiClient';
 import { storyPath, STORY_LIBRARY_PATH } from './site';
 
 const STORAGE_KEYS = {
@@ -100,59 +100,59 @@ export default function App() {
     playSparkleChime(soundEnabled);
   }, [soundEnabled]);
 
-  // Initial Data Fetch from Server API
+  const lastAppliedSync = useRef(0);
+  const applyCatalog = useCallback((result: VideoFetchResult) => {
+    const syncedAt = Date.parse(result.lastSynced) || 0;
+    if (!result.videos.length || syncedAt < lastAppliedSync.current) return;
+
+    lastAppliedSync.current = syncedAt;
+    setVideos(result.videos);
+    setCatalogSource(result.source);
+    if (syncedAt) setLastSyncedText(new Date(syncedAt).toLocaleTimeString('ar-EG'));
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
+    let loading = false;
 
     const loadVideos = async () => {
+      if (loading || document.visibilityState === 'hidden') return;
+      loading = true;
       try {
-        const result = await fetchVideosFromApi(false);
-        if (!isMounted || !result.videos.length) return;
-
-        setVideos(result.videos);
-        setCatalogSource(result.source);
-
-        // Offline / bundled data can have no known synchronization time.
-        if (result.lastSynced && !Number.isNaN(Date.parse(result.lastSynced))) {
-          setLastSyncedText(new Date(result.lastSynced).toLocaleTimeString('ar-EG'));
-        }
-
-      } catch (e) {
-        console.warn('Initial videos load warning:', e);
+        const result = await fetchVideosFromApi();
+        if (isMounted) applyCatalog(result);
+      } catch (error) {
+        console.warn('Could not load stories:', error);
+      } finally {
+        loading = false;
       }
     };
 
-    loadVideos();
-
-    // Periodic background sync every 8 minutes
-    const interval = setInterval(() => {
-      loadVideos();
-    }, 8 * 60 * 1000);
+    void loadVideos();
+    const interval = setInterval(loadVideos, 60_000);
+    document.addEventListener('visibilitychange', loadVideos);
 
     return () => {
       isMounted = false;
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', loadVideos);
     };
-  }, []);
+  }, [applyCatalog]);
 
-  // Handle Manual Refresh
   const handleRefreshStories = async () => {
     triggerCutePop();
     setIsSyncing(true);
     try {
-      const res = await refreshChannelVideos();
-      if (res.success && res.videos.length > 0) {
-        setVideos(res.videos);
-        setCatalogSource('live');
-        setLastSyncedText(new Date().toLocaleTimeString('ar-EG'));
-
-        triggerSparkle();
+      const result = await refreshChannelVideos();
+      if (result.success) {
+        applyCatalog(result);
+        if (result.updated) triggerSparkle();
       } else {
-        console.warn('YouTube refresh did not complete:', res.message);
+        console.warn('YouTube refresh did not complete:', result.message);
         setLastSyncedText('تعذر التحديث - القصص المحفوظة متاحة');
       }
-    } catch (e) {
-      console.warn('Manual refresh error:', e);
+    } catch (error) {
+      console.warn('Could not refresh stories:', error);
     } finally {
       setIsSyncing(false);
     }

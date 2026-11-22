@@ -34,7 +34,7 @@ export default async function handler(req: Request, res: Response) {
     </video:video>
   </url>`);
 
-  res.setHeader('Cache-Control', source === 'fallback' ? 'no-store' : 'public, s-maxage=300, stale-while-revalidate=600');
+  res.setHeader('Cache-Control', source === 'fallback' ? 'no-store' : 'public, s-maxage=60, stale-while-revalidate=30');
   return res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 ${[...pages, ...stories].join('\n')}

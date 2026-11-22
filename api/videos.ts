@@ -92,7 +92,7 @@ export default async function handler(
     } else {
       res.setHeader(
         'Cache-Control',
-        'public, s-maxage=60, stale-while-revalidate=120'
+        'public, s-maxage=30, stale-while-revalidate=30'
       );
     }
 

@@ -11,7 +11,7 @@ export interface SyncStatus {
   message?: string;
 }
 
-interface VideoFetchResult {
+export interface VideoFetchResult {
   videos: VideoStory[];
   source: string;
   lastSynced: string;
@@ -61,6 +61,9 @@ function saveOfflineCache(
   lastSynced: string
 ): void {
   try {
+    const saved = readOfflineCache();
+    if (saved && Date.parse(saved.lastSynced) > Date.parse(lastSynced)) return;
+
     localStorage.setItem(
       OFFLINE_CACHE_KEY,
       JSON.stringify({
@@ -129,6 +132,45 @@ function getInitialFallback(): VideoFetchResult {
   };
 }
 
+function readLiveCatalog(data: {
+  success?: boolean;
+  videos?: unknown;
+  source?: string;
+  lastSynced?: string;
+}): VideoFetchResult {
+  if (
+    !data.success ||
+    data.source === 'fallback' ||
+    !Array.isArray(data.videos)
+  ) {
+    throw new Error('Live YouTube data unavailable');
+  }
+
+  const videos = normalizeVideos(data.videos);
+
+  if (videos.length === 0) {
+    throw new Error('No valid videos returned');
+  }
+
+  const source =
+    typeof data.source === 'string'
+      ? data.source
+      : 'server';
+
+  const lastSynced =
+    typeof data.lastSynced === 'string'
+      ? data.lastSynced
+      : new Date().toISOString();
+
+  saveOfflineCache(videos, source, lastSynced);
+
+  return {
+    videos,
+    source,
+    lastSynced,
+  };
+}
+
 /**
  * Fetch all channel videos from the server API.
  * The server must return newest videos first.
@@ -157,37 +199,7 @@ export async function fetchVideosFromApi(
 
     const data = await response.json();
 
-    if (
-      !data.success ||
-      data.source === 'fallback' ||
-      !Array.isArray(data.videos)
-    ) {
-      throw new Error('Live YouTube data unavailable');
-    }
-
-    const videos = normalizeVideos(data.videos);
-
-    if (videos.length === 0) {
-      throw new Error('No valid videos returned');
-    }
-
-    const source =
-      typeof data.source === 'string'
-        ? data.source
-        : 'server';
-
-    const lastSynced =
-      typeof data.lastSynced === 'string'
-        ? data.lastSynced
-        : new Date().toISOString();
-
-    saveOfflineCache(videos, source, lastSynced);
-
-    return {
-      videos,
-      source,
-      lastSynced,
-    };
+    return readLiveCatalog(data);
   } catch (error) {
     console.warn(
       '[ApiClient] Live videos unavailable:',
@@ -259,9 +271,9 @@ export async function fetchVideoById(
  * Trigger a manual channel refresh.
  * Only report success when live synchronization succeeds.
  */
-export async function refreshChannelVideos(): Promise<{
+export async function refreshChannelVideos(): Promise<VideoFetchResult & {
   success: boolean;
-  videos: VideoStory[];
+  updated: boolean;
   message: string;
 }> {
   let failureMessage =
@@ -291,25 +303,11 @@ export async function refreshChannelVideos(): Promise<{
       throw new Error(failureMessage);
     }
 
-    // Fetch the updated list without using the old HTTP cache.
-    const fresh = await fetchVideosFromApi(true);
-
-    const hasLiveVideos =
-      (fresh.source === 'api' ||
-        fresh.source === 'scraper') &&
-      fresh.videos.length > 0;
-
-    const actuallyUpdated =
-      hasLiveVideos && data.updated !== false;
-
     return {
-      success: actuallyUpdated,
-      videos: fresh.videos,
-      message: actuallyUpdated
-        ? 'تم تحديث الحكايات من قناة قصة العائلة بنجاح.'
-        : data.updated === false
-          ? 'لم تتم مزامنة جديدة الآن. تم الاحتفاظ بآخر القصص المتاحة.'
-          : 'تعذر تأكيد جلب فيديوهات جديدة. تم الاحتفاظ بالقصص المتاحة.',
+      ...readLiveCatalog(data),
+      success: true,
+      updated: data.updated !== false,
+      message: data.message,
     };
   } catch (error) {
     console.warn(
@@ -322,8 +320,9 @@ export async function refreshChannelVideos(): Promise<{
     readOfflineCache() ?? getInitialFallback();
 
   return {
+    ...availableVideos,
     success: false,
-    videos: availableVideos.videos,
+    updated: false,
     message: failureMessage,
   };
 }
